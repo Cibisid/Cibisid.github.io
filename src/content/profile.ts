@@ -34,6 +34,57 @@ export const about = [
    that is confidently wrong.`,
 ] as const;
 
+/**
+ * The TrialBridge pipeline, stage by stage, with the file each stage lives in.
+ * Naming the file is the point — it lets a reader go straight from the diagram
+ * to the code rather than taking the diagram's word for it.
+ */
+export const pipeline = [
+  {
+    stage: "Patient note",
+    detail: "Free text, as a clinician writes it",
+    file: null,
+  },
+  {
+    stage: "NLP extraction",
+    detail: "Age, sex, diagnosis, labs, medications — negation-aware",
+    file: "backend/nlp/extractor_v2.py",
+  },
+  {
+    stage: "Embedding",
+    detail: "MiniLM, 384 dimensions",
+    file: "backend/matching/embedder.py",
+  },
+  {
+    stage: "Vector search",
+    detail: "Cosine similarity over 2,344 trials in pgvector",
+    file: "PostgreSQL + pgvector",
+  },
+  {
+    stage: "Criteria parsing",
+    detail: "Eligibility prose split into discrete, decidable claims",
+    file: "backend/agent/criteria.py",
+  },
+  {
+    stage: "Tool-gated lookup",
+    detail: "Every fact requested through a tool; absences reported as absences",
+    file: "backend/agent/patient_store.py",
+  },
+  {
+    stage: "Adjudication",
+    detail: "MET / NOT_MET / UNKNOWN per criterion, with evidence",
+    file: "backend/agent/eligibility_agent.py",
+  },
+] as const;
+
+/** Facts about the repository, all checkable in about thirty seconds. */
+export const repoFacts = [
+  { value: "2,344", label: "trials ingested from ClinicalTrials.gov" },
+  { value: "83", label: "tests passing in CI" },
+  { value: "3", label: "green CI jobs: lint, tests, Docker" },
+  { value: "0", label: "projects listed here without public code" },
+] as const;
+
 export type SampleLine = {
   mark: "ok" | "unknown" | "no";
   text: string;
