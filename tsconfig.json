@@ -11,6 +11,11 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // scripts/verify-port.ts is run directly by Node, which strips types and
+    // requires explicit .ts extensions on relative imports. Safe here because
+    // noEmit is on, and it keeps that script type-checked rather than having
+    // to exclude it from the project.
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "incremental": true,
     "plugins": [

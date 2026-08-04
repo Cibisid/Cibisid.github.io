@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# cibisid.github.io
 
-## Getting Started
+Personal site for Cibi Siddarth — AI / Applied AI Engineer.
 
-First, run the development server:
+Live at **https://cibisid.github.io**
+
+## What's interesting here
+
+The two interactive panels on the page are not mockups. They run ported copies
+of real logic from [TrialBridge](https://github.com/Cibisid/trialbridge):
+
+| Browser module | Ported from |
+|---|---|
+| `src/lib/criteria.ts` | `backend/agent/criteria.py` |
+| `src/lib/patientStore.ts` | `backend/agent/patient_store.py` |
+
+So typing `asthma` into the lookup panel returns the genuine `NOT_MENTIONED`
+response — the note never mentions asthma, and that is not evidence the patient
+doesn't have it. Editing the criteria textarea re-runs the real parser.
+
+Ports drift. `scripts/verify-port.ts` asserts these against the same
+expectations as the Python test suite (29 checks: bullet markers, wrapped
+criteria, header-less text staying `UNSPECIFIED`, lab aliasing, negation
+resolved before positives). It runs in CI before every deploy, so if the Python
+changes and the ports don't, the build fails rather than the site quietly
+misrepresenting the project.
+
+```bash
+npm run verify:port
+```
+
+## Content
+
+Every claim on the page comes from `src/content/profile.ts`. The rule for the
+projects list is that anything without a public repository doesn't appear — a
+portfolio entry a reader can't click through to is a claim taken on faith.
+
+## Images
+
+Drop files into `public/media/` and they appear automatically:
+
+| File | Where it shows |
+|---|---|
+| `unf.jpg` | University of North Florida, education section |
+| `vit.jpg` | Vellore Institute of Technology, education section |
+
+Until a file exists, `src/components/Figure.tsx` renders a placeholder naming
+it. Nothing points at a missing path, so there is never a broken-image glyph.
+
+## Motion
+
+CSS scroll-driven animations (`animation-timeline: view()` / `scroll()`), not a
+smooth-scroll library. Native scrolling is untouched, so momentum, trackpad
+feel, find-in-page and keyboard paging all still work.
+
+Dim and hidden starting states live only in `@keyframes`, never as base
+declarations — if a timeline fails to advance, or the reader prefers reduced
+motion, elements sit in their finished visible state instead of disappearing.
+
+## Local development
+
+```bash
+npm install
+```
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Build the static export the way CI does:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Stack
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 (App Router, static export), React 19, Tailwind CSS v4, TypeScript.
+Deployed to GitHub Pages by `.github/workflows/deploy.yml`. No webfonts — the
+type stack is system fonts, so nothing blocks first paint.
