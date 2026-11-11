@@ -104,13 +104,21 @@ h1,h2,h3{text-wrap:balance; letter-spacing:-.03em; font-weight:600}
 .stats b{font-size:25px; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.15}
 .stats span{font-size:12.5px; color:var(--muted)}
 .proj .stack{font:13px/1.6 var(--mono); color:var(--muted)}
+.proj .headline{font-size:20px; font-weight:500; line-height:1.4; letter-spacing:-.01em; color:var(--ink); margin-top:-6px}
+.how-h{font:500 12.5px/1 var(--mono); letter-spacing:.04em; text-transform:uppercase; color:var(--moss)}
+.how{list-style:none; padding:0; display:flex; flex-direction:column; gap:10px; counter-reset:step}
+.how li{display:grid; grid-template-columns:26px minmax(0,1fr); gap:10px; font-size:15.5px; color:var(--ink2)}
+.how li::before{counter-increment:step; content:counter(step); width:24px; height:24px; border-radius:50%; background:var(--teal-soft); color:var(--teal); font:600 12.5px/24px var(--sans); text-align:center; margin-top:1px}
+.short{padding:12px 16px; border-radius:10px; background:var(--bg); font-size:15px; color:var(--ink2)}
+.short b{color:var(--ink); font-weight:600}
 .proj .row{margin-top:auto; padding-top:4px}
 .private{font-size:14px; color:var(--muted)}
 
 /* product screens */
-.visual{background:var(--panel); padding:40px 40px 0; display:flex; align-items:flex-end; min-width:0; border-left:1px solid var(--line)}
-@media (max-width:920px){ .visual{border-left:0; border-top:1px solid var(--line); padding:28px 22px 0} }
-.shot{width:100%; background:var(--paper); border:1px solid var(--line2); border-bottom:0; border-radius:12px 12px 0 0; box-shadow:0 24px 48px -24px rgb(40 32 20 / .38); min-width:0; overflow:hidden}
+.visual{background:var(--panel); padding:40px; display:flex; flex-direction:column; justify-content:center; gap:12px; min-width:0; border-left:1px solid var(--line)}
+@media (max-width:920px){ .visual{border-left:0; border-top:1px solid var(--line); padding:24px 18px} }
+.visual .cap{font:500 12px/1.4 var(--mono); letter-spacing:.04em; text-transform:uppercase; color:var(--muted)}
+.shot{width:100%; background:var(--paper); border:1px solid var(--line2); border-radius:12px; box-shadow:0 24px 48px -24px rgb(40 32 20 / .38); min-width:0; overflow:hidden}
 .shot-bar{display:flex; align-items:center; gap:6px; padding:11px 14px; border-bottom:1px solid var(--line); min-width:0}
 .shot-bar i{width:10px; height:10px; border-radius:50%; background:var(--line2); flex:none}
 .shot-bar .u{margin-left:10px; font:12px var(--mono); color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}
@@ -289,6 +297,7 @@ pre.json .k{color:var(--teal)} pre.json .s{color:var(--clay)} pre.json .v{color:
 .legend span::before{content:""; display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:7px; vertical-align:-1px; background:var(--teal)}
 .legend span + span::before{background:var(--sand)}
 
+
 dialog{border-radius:16px}
 .dlg-head h3{font:600 24px/1.2 var(--sans); letter-spacing:-.02em}
 .verdict strong{font:600 22px/1.2 var(--sans); letter-spacing:-.02em}
@@ -312,7 +321,7 @@ dialog{border-radius:16px}
   <div class="wrap">
     <p class="avail"><b></b>Available for AI/ML, backend and data roles</p>
     <h1>Software engineer building reliable AI systems.</h1>
-    <p class="lede">I ship LLM infrastructure with real tests behind it: a multi-provider gateway, an eval-gated release platform, and a clinical-trial matching agent. Every project below has a live demo.</p>
+    <p class="lede">I build AI software that companies can trust. It's tested before it goes live, keeps working when an AI provider goes down, and says "I don't know" instead of making things up. Every project below explains what it does in plain English, and has a live demo you can try.</p>
     <div class="row">
       <a class="btn solid" href="#work">View projects</a>
       <a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</a>
@@ -331,7 +340,7 @@ dialog{border-radius:16px}
   <div class="wrap">
     <div class="sec-head">
       <div><p class="eyebrow">Selected work</p><h2>Shipped projects</h2></div>
-      <p>Each project is finished, tested, and has a live demo you can run in your browser.</p>
+      <p>Each project is finished and tested. Read what problem it solves, see how it works in three steps, then try it yourself.</p>
     </div>
     <div class="projects">
 
@@ -339,18 +348,27 @@ dialog{border-radius:16px}
         <div class="txt">
           <div class="badges"><span class="badge">01 · FLAGSHIP</span><span class="pill">Shipped</span></div>
           <h3>Gauntlet</h3>
-          <p class="desc">A release platform for LLM and agent systems. New models and prompts must pass quality, safety, latency and cost gates, then roll out gradually and roll back on their own if errors climb.</p>
-          <div class="stats"><div><b>137</b><span>tests</span></div><div><b>98%</b><span>coverage</span></div><div><b>Auto</b><span>rollback</span></div></div>
-          <p class="stack">Python · LLM evals · pytest · canary releases</p>
+          <p class="headline">A safety check that stops a bad AI update before customers see it.</p>
+          <p class="desc">Companies keep updating the AI behind their chatbots and assistants. Sometimes an update quietly gives worse answers, gets slower, or costs more, and customers notice before the team does.</p>
+          <p class="how-h">How it works</p>
+          <ol class="how">
+            <li>Tests the new AI version on a fixed set of questions and scores accuracy, made-up answers, speed and cost.</li>
+            <li>If any score misses its target, the update is blocked.</li>
+            <li>If it passes, it goes to 5% of users first, then 25%, 50% and everyone. If errors spike, it switches everyone back to the old version automatically.</li>
+          </ol>
+          <p class="short"><b>In short:</b> a driving test plus a probation period for AI models.</p>
+          <div class="stats"><div><b>137</b><span>automated tests</span></div><div><b>98%</b><span>of code tested</span></div><div><b>Auto</b><span>undo on errors</span></div></div>
+          <p class="stack">Built with Python · LLM evaluations · pytest · staged rollouts</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-gauntlet">Open live demo</button><a class="btn sm" href="https://github.com/Cibisid/gauntlet" target="_blank" rel="noopener">Source code</a></div>
         </div>
         <div class="visual" aria-hidden="true">
+          <p class="cap">What a release check looks like</p>
           <div class="shot">
             <div class="shot-bar"><i></i><i></i><i></i><span class="u">gauntlet · release v2.4 vs v2.3</span><span class="pill">Released</span></div>
             <div class="shot-body">
               <div class="line"><span>Eval pass rate</span><span class="m">97.0% ≥ 95%</span><span class="ok">PASS</span></div>
-              <div class="line"><span>Ungrounded answers</span><span class="m">1.0% ≤ 2%</span><span class="ok">PASS</span></div>
-              <div class="line"><span>p95 latency</span><span class="m">900 ms ≤ 1,200</span><span class="ok">PASS</span></div>
+              <div class="line"><span>Made-up answers</span><span class="m">1.0% ≤ 2%</span><span class="ok">PASS</span></div>
+              <div class="line"><span>Response time</span><span class="m">900 ms ≤ 1,200</span><span class="ok">PASS</span></div>
               <div class="line"><span>Cost per request</span><span class="m">$0.0060 ≤ $0.01</span><span class="ok">PASS</span></div>
               <div class="stages"><span>5%</span><span>25%</span><span>50%</span><span>100%</span></div>
             </div>
@@ -362,17 +380,26 @@ dialog{border-radius:16px}
         <div class="txt">
           <div class="badges"><span class="badge">02 · AI INFRASTRUCTURE</span><span class="pill">Shipped</span></div>
           <h3>LLM Gateway</h3>
-          <p class="desc">One OpenAI-compatible endpoint that routes requests across model providers, switches to a backup when one fails, and gives agents tools through an MCP server with agent-to-agent delegation.</p>
-          <div class="stats"><div><b>167</b><span>tests passing</span></div><div><b>11</b><span>MCP tools</span></div><div><b>23</b><span>eval cases</span></div></div>
-          <p class="stack">Python · FastAPI · MCP · A2A · Docker</p>
+          <p class="headline">One connection to many AI providers, so an app keeps working when one goes down.</p>
+          <p class="desc">Most apps connect to a single AI provider. When that provider has an outage or slows down, the app breaks for every user. The gateway sits in the middle and can talk to several providers.</p>
+          <p class="how-h">How it works</p>
+          <ol class="how">
+            <li>The app sends every AI request to the gateway, in the same format it already uses, so nothing needs rewriting.</li>
+            <li>The gateway picks a provider based on what the app asked for: the smartest, the fastest, or the cheapest.</li>
+            <li>If that provider is down, it automatically tries the next one, so the user still gets an answer. It also gives AI agents a shared set of 11 tools and lets one agent hand work to another.</li>
+          </ol>
+          <p class="short"><b>In short:</b> like a phone that switches to another cell network when yours drops.</p>
+          <div class="stats"><div><b>167</b><span>automated tests</span></div><div><b>11</b><span>shared agent tools</span></div><div><b>23</b><span>quality checks</span></div></div>
+          <p class="stack">Built with Python · FastAPI · MCP · A2A · Docker</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-gateway">Open live demo</button><a class="btn sm" href="https://github.com/Cibisid/llm-gateway" target="_blank" rel="noopener">Source code</a></div>
         </div>
         <div class="visual" aria-hidden="true">
+          <p class="cap">What the app sees during an outage</p>
           <div class="shot">
             <div class="shot-bar"><i></i><i></i><i></i><span class="u">POST /v1/chat/completions · model: smart</span><span class="pill">200 · 452 ms</span></div>
             <div class="shot-body">
-              <div class="hop off"><span class="n">1</span><span>primary · health check failed</span><span class="tag-off">SKIPPED</span></div>
-              <div class="hop hit"><span class="n">2</span><span>secondary · answered</span><span class="tag-ok">200 OK</span></div>
+              <div class="hop off"><span class="n">1</span><span>Main provider · down</span><span class="tag-off">SKIPPED</span></div>
+              <div class="hop hit"><span class="n">2</span><span>Backup provider · answered</span><span class="tag-ok">200 OK</span></div>
               <div class="code">{
   <span class="k">"model"</span>: <span class="s">"smart"</span>,
   <span class="k">"provider"</span>: <span class="s">"secondary"</span>,
@@ -388,12 +415,21 @@ dialog{border-radius:16px}
         <div class="txt">
           <div class="badges"><span class="badge">03 · HEALTHCARE AI</span><span class="pill">Shipped</span></div>
           <h3>TrialBridge</h3>
-          <p class="desc">Matches patients to clinical trials from ClinicalTrials.gov. A Claude agent on Amazon Bedrock checks every eligibility rule with tools, and answers UNKNOWN when a fact is missing instead of guessing.</p>
-          <div class="stats"><div><b>2,344</b><span>trials indexed</span></div><div><b>86</b><span>tests, CI passing</span></div><div><b>0</b><span>guesses allowed</span></div></div>
-          <p class="stack">Python · PostgreSQL · pgvector · sentence-transformers · Bedrock</p>
+          <p class="headline">Finds clinical trials a patient may qualify for, and never guesses.</p>
+          <p class="desc">Clinical trials test new treatments, and each one has a long list of rules about age, diagnosis, lab results and more. Checking one patient against thousands of trials by hand takes hours.</p>
+          <p class="how-h">How it works</p>
+          <ol class="how">
+            <li>Searches 2,344 real trials from ClinicalTrials.gov for ones related to the patient's condition.</li>
+            <li>An AI assistant reads the patient's record and checks each trial's rules one by one.</li>
+            <li>Every rule comes back as met, not met, or UNKNOWN when the record is missing that information. The assistant is not allowed to guess.</li>
+          </ol>
+          <p class="short"><b>In short:</b> in healthcare, "we need one more lab result" is far safer than a confident wrong answer.</p>
+          <div class="stats"><div><b>2,344</b><span>real trials searched</span></div><div><b>86</b><span>automated tests</span></div><div><b>0</b><span>guesses allowed</span></div></div>
+          <p class="stack">Built with Python · PostgreSQL · pgvector · Claude on Amazon Bedrock</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-trial">Open live demo</button><a class="btn sm" href="https://github.com/Cibisid/trialbridge" target="_blank" rel="noopener">Source code</a></div>
         </div>
         <div class="visual" aria-hidden="true">
+          <p class="cap">What a patient match looks like</p>
           <div class="shot">
             <div class="shot-bar"><i></i><i></i><i></i><span class="u">trialbridge · patient demo-001</span><span class="pill" style="color:var(--warn);background:#F5EBDC">1 needs data</span></div>
             <div class="shot-body">
@@ -409,12 +445,21 @@ dialog{border-radius:16px}
         <div class="txt">
           <div class="badges"><span class="badge">04 · AUTOMATION</span><span class="pill">Shipped</span></div>
           <h3>job-watcher</h3>
-          <p class="desc">A scheduled pipeline that scans company career pages, filters out staffing agencies and roles that won't sponsor, scores every posting for fit, and publishes a ranked dashboard.</p>
-          <div class="stats"><div><b>~430</b><span>job boards</span></div><div><b>~125k</b><span>postings per run</span></div><div><b>3h</b><span>scan interval</span></div></div>
-          <p class="stack">Python · GitHub Actions · ATS APIs</p>
+          <p class="headline">An automatic job hunter that checks hundreds of company career pages for you.</p>
+          <p class="desc">New jobs are posted on hundreds of separate company websites, and the big job boards are cluttered with staffing agencies and repeat listings. Keeping up by hand means refreshing tabs all day.</p>
+          <p class="how-h">How it works</p>
+          <ol class="how">
+            <li>Every 3 hours, it visits about 430 company job boards and collects every new posting.</li>
+            <li>It throws out staffing agencies and roles that won't sponsor.</li>
+            <li>It scores each remaining job from 1 to 5 for how well it fits, and shows the best ones on a dashboard.</li>
+          </ol>
+          <p class="short"><b>In short:</b> it does the daily job-board refreshing, then hands you a shortlist.</p>
+          <div class="stats"><div><b>~430</b><span>job boards checked</span></div><div><b>~125k</b><span>postings per scan</span></div><div><b>3 hrs</b><span>between scans</span></div></div>
+          <p class="stack">Built with Python · GitHub Actions · job-board APIs</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-jobs">Open live demo</button><span class="private">Source available on request</span></div>
         </div>
         <div class="visual" aria-hidden="true">
+          <p class="cap">What one scan returns</p>
           <div class="shot">
             <div class="shot-bar"><i></i><i></i><i></i><span class="u">job-watcher · latest run</span><span class="pill">3 shortlisted</span></div>
             <div class="shot-body">
@@ -431,12 +476,21 @@ dialog{border-radius:16px}
         <div class="txt">
           <div class="badges"><span class="badge">05 · DATA SCIENCE</span><span class="pill award">Runner-up · AI for Good 2025</span></div>
           <h3>Housing Affordability</h3>
-          <p class="desc">Team ML models built for the State of Florida's statewide AI for Good Hackathon: the income a home really needs, the monthly payment, and how many households can afford it.</p>
-          <div class="stats"><div><b>2nd</b><span>place statewide</span></div><div><b>ML</b><span>affordability models</span></div><div><b>Team</b><span>project</span></div></div>
-          <p class="stack">Python · pandas · scikit-learn · XGBoost</p>
+          <p class="headline">How much do you need to earn to afford a home? Our team built models to answer it.</p>
+          <p class="desc">Home prices and interest rates keep rising, but most families don't know what income a house really takes. For the State of Florida's AI for Good Hackathon, our team built machine learning models on this question.</p>
+          <p class="how-h">How it works</p>
+          <ol class="how">
+            <li>Takes a home's price, down payment, interest rate, taxes and insurance.</li>
+            <li>Works out the true monthly payment.</li>
+            <li>Calculates the yearly income needed, and estimates how many households can afford it.</li>
+          </ol>
+          <p class="short"><b>In short:</b> turns "can I afford this house?" into a clear number. We placed runner-up statewide.</p>
+          <div class="stats"><div><b>2nd</b><span>place statewide</span></div><div><b>ML</b><span>prediction models</span></div><div><b>Team</b><span>project</span></div></div>
+          <p class="stack">Built with Python · pandas · scikit-learn · XGBoost</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-house">Open the calculator</button></div>
         </div>
         <div class="visual" aria-hidden="true">
+          <p class="cap">What the calculator shows</p>
           <div class="shot">
             <div class="shot-bar"><i></i><i></i><i></i><span class="u">affordability · $350,000 home</span></div>
             <div class="shot-body">
@@ -522,8 +576,8 @@ dialog{border-radius:16px}
     <p class="intro">Set how release v2.4 scored, then run the release. Turn on the problem switch to watch an automatic rollback.</p>
     <div class="ctrls">
       <div class="field"><label for="g-pass">Eval pass rate <output id="o-pass"></output></label><input id="g-pass" type="range" min="80" max="100" step="0.5" value="97"></div>
-      <div class="field"><label for="g-hall">Ungrounded answers <output id="o-hall"></output></label><input id="g-hall" type="range" min="0" max="8" step="0.5" value="1"></div>
-      <div class="field"><label for="g-p95">p95 latency <output id="o-p95"></output></label><input id="g-p95" type="range" min="400" max="2400" step="50" value="900"></div>
+      <div class="field"><label for="g-hall">Made-up answers <output id="o-hall"></output></label><input id="g-hall" type="range" min="0" max="8" step="0.5" value="1"></div>
+      <div class="field"><label for="g-p95">Response time <output id="o-p95"></output></label><input id="g-p95" type="range" min="400" max="2400" step="50" value="900"></div>
       <div class="field"><label for="g-cost">Cost per request <output id="o-cost"></output></label><input id="g-cost" type="range" min="2" max="20" step="0.5" value="6"></div>
     </div>
     <ul class="gates" id="g-gates" aria-live="polite"></ul>
@@ -538,8 +592,8 @@ dialog{border-radius:16px}
 <dialog id="dlg-gateway" aria-labelledby="h-gw">
   <div class="dlg-head"><h3 id="h-gw">LLM Gateway</h3><span class="chip idle" id="gw-state">Idle</span><button class="x" type="button" data-close aria-label="Close">×</button></div>
   <div class="demo">
-    <p class="intro">Pick a model alias, take a provider offline, and send a request. The gateway falls back to the next provider on the route.</p>
-    <div class="field"><span class="lbl">Model alias</span><div class="seg" id="gw-alias" role="group" aria-label="Model alias"><button type="button" data-a="smart" aria-pressed="true">smart</button><button type="button" data-a="fast" aria-pressed="false">fast</button><button type="button" data-a="cheap" aria-pressed="false">cheap</button></div></div>
+    <p class="intro">Choose what matters most (smartest, fastest or cheapest), switch a provider off to fake an outage, then send a message. Watch the gateway move to the backup.</p>
+    <div class="field"><span class="lbl">What matters most</span><div class="seg" id="gw-alias" role="group" aria-label="Model alias"><button type="button" data-a="smart" aria-pressed="true">smart</button><button type="button" data-a="fast" aria-pressed="false">fast</button><button type="button" data-a="cheap" aria-pressed="false">cheap</button></div></div>
     <div class="field"><span class="lbl">Provider health <small>Uncheck one to take it offline</small></span><div class="toggles" id="gw-health"><label><input type="checkbox" data-p="primary" checked> primary</label><label><input type="checkbox" data-p="secondary" checked> secondary</label><label><input type="checkbox" data-p="local" checked> local</label></div></div>
     <div class="field"><label for="gw-prompt">Message</label><input id="gw-prompt" type="text" value="Summarize this support ticket in one line."></div>
     <div class="row"><button class="btn solid sm" id="gw-send" type="button">Send request</button><span class="note" id="gw-hint">Try taking "primary" offline, then send.</span></div>
@@ -619,8 +673,8 @@ addEventListener('hashchange', fromHash); fromHash();
 /* Gauntlet */
 const G = [
   { id: 'pass', name: 'Eval pass rate', fmt: v => v.toFixed(1) + '%', rule: 'at least 95%', ok: v => v >= 95 },
-  { id: 'hall', name: 'Ungrounded answers', fmt: v => v.toFixed(1) + '%', rule: 'at most 2%', ok: v => v <= 2 },
-  { id: 'p95', name: 'p95 latency', fmt: v => v.toLocaleString('en-US') + ' ms', rule: 'at most 1,200 ms', ok: v => v <= 1200 },
+  { id: 'hall', name: 'Made-up answers', fmt: v => v.toFixed(1) + '%', rule: 'at most 2%', ok: v => v <= 2 },
+  { id: 'p95', name: 'Response time', fmt: v => v.toLocaleString('en-US') + ' ms', rule: 'at most 1,200 ms', ok: v => v <= 1200 },
   { id: 'cost', name: 'Cost per request', fmt: v => '$' + (v / 1000).toFixed(4), rule: 'at most $0.0100', ok: v => v <= 10 },
 ];
 const gVal = g => parseFloat($('#g-' + g.id).value);
