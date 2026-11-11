@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TrialBridge case study · Cibi Siddarth</title>
+<meta name="description" content="How TrialBridge matches patients to clinical trials with an AI agent that is structurally unable to guess missing medical facts.">
+<meta property="og:title" content="TrialBridge · clinical trial matching that never guesses">
+<meta property="og:description" content="Case study by Cibi Siddarth: semantic trial search plus an eligibility agent on Amazon Bedrock that answers UNKNOWN when data is missing.">
+<meta property="og:image" content="https://cibisid.github.io/og.png">
+<meta property="og:url" content="https://cibisid.github.io/projects/trialbridge.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231A1916'/%3E%3Ctext x='32' y='41' font-family='Arial,sans-serif' font-weight='700' font-size='24' fill='%23F6F4EF' text-anchor='middle'%3ECS%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/case.css">
+</head>
+<body>
+<header class="nav"><div class="wrap"><a class="brand" href="../"><i>CS</i>Cibi Siddarth</a><a class="back" href="../#work">← All projects</a><a class="btn dark sm" href="../#contact">Get in touch</a></div></header>
+
+<main class="wrap">
+  <section class="head">
+    <p class="eyebrow">Case study · Healthcare AI</p>
+    <h1>TrialBridge</h1>
+    <p class="plain">Finds clinical trials a patient may qualify for, checks every eligibility rule, and says UNKNOWN instead of guessing when the patient's record is missing something.</p>
+    <div class="row"><a class="btn solid" href="../#demo-trial">Try the live demo</a><a class="btn" href="https://github.com/Cibisid/trialbridge" target="_blank" rel="noopener">Source code ↗</a></div>
+    <div class="meta">
+      <div><span>Role</span><b>Solo project</b></div>
+      <div><span>Status</span><b>Shipped, CI passing</b></div>
+      <div><span>Data</span><b>2,344 real trials</b></div>
+      <div><span>Built with</span><b>Python, pgvector, Bedrock</b></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">The problem</p>
+    <h2>Patients miss trials, and trials miss patients.</h2>
+    <p>Clinical trials test new treatments, and many struggle to enroll enough people. Meanwhile, patients who would qualify never hear about them. Matching is still done by hand: a research coordinator reads each trial's rules line by line against a patient's chart.</p>
+    <p>An AI can speed that up, but in healthcare a confident wrong answer is dangerous. If a rule depends on a lab result that was never measured, the honest answer is "unknown", not a guess.</p>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">How it works</p>
+    <h2>Search wide, then check every rule carefully.</h2>
+    <div class="diagram" role="img" aria-label="TrialBridge pipeline: a patient note is parsed, converted to an embedding, searched against 2,344 trials, filtered by rules, and checked criterion by criterion by an eligibility agent that answers met, not met, or unknown.">
+      <div class="flow with-arrows" style="--cols:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1.25fr)">
+        <div class="node"><b>1. Read the patient note</b><span>Pulls out age, sex, diagnosis, lab values and medications, and notices negations like "no prior insulin".</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>2. Search by meaning</b><span>Turns the patient into a vector and finds the 50 closest of 2,344 trials stored in PostgreSQL with pgvector.</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>3. Rules and scoring</b><span>Checks age range and required or excluded conditions, then ranks trials by similarity plus rule fit.</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node key"><b>4. Eligibility agent</b><span>Claude on Amazon Bedrock reads each criterion and asks for the facts it needs through a tool. Each criterion comes back MET, NOT MET or UNKNOWN, with evidence.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Key decisions</p>
+    <h2>Making guessing impossible, not just discouraged.</h2>
+    <div class="decisions">
+      <article class="decision"><h3>The agent never sees the patient note</h3><p>It has to request each fact through a tool. If the record doesn't contain a value, the tool literally answers "not present", so UNKNOWN is the only verdict left. The model can't fill the gap from a guess.</p><p class="trade"><b>Trade-off:</b> more tool calls per trial, in exchange for decisions you can audit.</p></article>
+      <article class="decision"><h3>Measure both kinds of mistake</h3><p>The evaluation reports two rates together: confident decisions the record couldn't support, and UNKNOWN answers the record could have settled.</p><p class="trade"><b>Trade-off:</b> reporting only the first would be dishonest, because answering UNKNOWN to everything scores perfectly on it and is useless.</p></article>
+      <article class="decision"><h3>A smaller, faster search model</h3><p>The plan was BioBERT. I shipped MiniLM instead: about 5 times faster at close to the same retrieval quality on this data.</p><p class="trade"><b>Trade-off:</b> the embedder is model-agnostic, so BioBERT can be swapped back in.</p></article>
+      <article class="decision"><h3>Let the model think before acting</h3><p>With extended thinking turned off, the model sometimes wrote a tool call as plain text, which looks like a finished turn where nothing actually ran. Thinking stays on.</p><p class="trade"><b>Trade-off:</b> slightly slower and more tokens per decision.</p></article>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Results</p>
+    <h2>What's built and verified.</h2>
+    <div class="results">
+      <div><b>2,344</b><span>trials ingested from the ClinicalTrials.gov bulk export</span></div>
+      <div><b>86</b><span>automated tests, run in CI against live PostgreSQL</span></div>
+      <div><b>3</b><span>possible verdicts per rule: met, not met, unknown</span></div>
+    </div>
+    <ul class="points">
+      <li><span><b>Full pipeline endpoint:</b> paste a patient note and get ranked, scored trial matches back.</span></li>
+      <li><span><b>A data-quality pass over the raw export</b> shaped the extraction rules before any matching code was written.</span></li>
+      <li><span><b>CI on every change:</b> ruff lint and format, mypy type checks, and pytest with coverage.</span></li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">What I'd do next</p>
+    <h2>Honest about what's left.</h2>
+    <ul class="points next">
+      <li><span><b>Real sign-in.</b> The login endpoint is a placeholder today.</span></li>
+      <li><span><b>Plain-English explanations</b> for every match. The explainer is written but not yet connected to the match results.</span></li>
+      <li><span><b>A web interface</b> for coordinators, and deployment to AWS.</span></li>
+      <li><span><b>Run the evaluation on more hand-labelled cases</b> and publish both error rates.</span></li>
+    </ul>
+    <div class="chips" style="margin-top:8px"><span>Python</span><span>FastAPI</span><span>PostgreSQL</span><span>pgvector</span><span>sentence-transformers</span><span>Claude on Amazon Bedrock</span><span>Docker</span><span>GitHub Actions</span></div>
+  </section>
+</main>
+
+<footer class="cta"><div class="wrap">
+  <div class="top"><h2>Want to talk about how I'd bring this to your team?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
+  <div class="next"><a href="llm-gateway.html">← LLM Gateway</a><span>Next case study: <a href="job-watcher.html">job-watcher →</a></span></div>
+</div></footer>
+</body>
+</html>

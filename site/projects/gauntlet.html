@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gauntlet case study · Cibi Siddarth</title>
+<meta name="description" content="How Gauntlet stops a bad AI update before customers see it: statistical release gates, judges that must earn trust, and canary rollouts that undo themselves.">
+<meta property="og:title" content="Gauntlet · a safety check for AI updates">
+<meta property="og:description" content="Case study by Cibi Siddarth: eval-gated releases and self-reverting canary rollouts for LLM systems.">
+<meta property="og:image" content="https://cibisid.github.io/og.png">
+<meta property="og:url" content="https://cibisid.github.io/projects/gauntlet.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231A1916'/%3E%3Ctext x='32' y='41' font-family='Arial,sans-serif' font-weight='700' font-size='24' fill='%23F6F4EF' text-anchor='middle'%3ECS%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/case.css">
+</head>
+<body>
+<header class="nav"><div class="wrap"><a class="brand" href="../"><i>CS</i>Cibi Siddarth</a><a class="back" href="../#work">← All projects</a><a class="btn dark sm" href="../#contact">Get in touch</a></div></header>
+
+<main class="wrap">
+  <section class="head">
+    <p class="eyebrow">Case study · Flagship project</p>
+    <h1>Gauntlet</h1>
+    <p class="plain">A safety check that stops a bad AI update before customers see it, and undoes a release on its own if problems show up with real traffic.</p>
+    <div class="row"><a class="btn solid" href="../#demo-gauntlet">Try the live demo</a><a class="btn" href="https://github.com/Cibisid/gauntlet" target="_blank" rel="noopener">Source code ↗</a></div>
+    <div class="meta">
+      <div><span>Role</span><b>Solo project</b></div>
+      <div><span>Status</span><b>Shipped, CI passing</b></div>
+      <div><span>Tests</span><b>137, about 98% coverage</b></div>
+      <div><span>Built with</span><b>Python, FastAPI</b></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">The problem</p>
+    <h2>AI updates can quietly make a product worse.</h2>
+    <p>Teams change the prompt, swap to a cheaper model, or add a new safety filter almost every week. Any of those changes can make answers less accurate, leak something it shouldn't, slow the app down, or raise the bill. Usually nobody finds out until customers complain, because there's no equivalent of a test suite for "is the AI still as good as before?"</p>
+    <p>Gauntlet treats prompts, models and guardrails like code: every change is versioned, tested against the current version before it merges, and released gradually.</p>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">How it works</p>
+    <h2>Two checkpoints: before release, and during it.</h2>
+    <div class="diagram" role="img" aria-label="Gauntlet pipeline: a change to the release file goes through an offline gate, then a canary rollout from 1% to 100% of traffic, then is promoted or automatically rolled back.">
+      <div class="flow with-arrows" style="--cols:minmax(0,1fr) auto minmax(0,1.2fr) auto minmax(0,1.2fr) auto minmax(0,1fr)">
+        <div class="node"><b>1. A change is proposed</b><span>A pull request edits the release file: prompt, model, settings, guardrails or budgets.</span><code>releases/*.yaml</code></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node key"><b>2. Offline gate</b><span>Old and new versions answer the same held-out cases. The new one must be statistically no worse, leak nothing to injection attacks, and stay inside error, speed and cost budgets.</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node key"><b>3. Canary rollout</b><span>Live traffic shifts 1% → 10% → 50% → 100%. Each step widens only while errors, response time, leaks and quality scores stay healthy.</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>4. Promote or roll back</b><span>Healthy: the new version takes all traffic. Not healthy: it switches back automatically and writes the reason to a tamper-evident audit log.</span></div>
+      </div>
+      <p class="dlabel">Around it</p>
+      <div class="side" style="--n:3">
+        <div class="node"><b>Proxy</b><span>Routes stable and canary traffic, hashes API keys, rate-limits, redacts personal data from traces.</span></div>
+        <div class="node"><b>Monitoring</b><span>Prometheus metrics, a Grafana dashboard, 7 alerts with runbooks, and drift detection.</span></div>
+        <div class="node"><b>Deploy</b><span>Hardened Docker image, Kubernetes manifests and Terraform for AWS, all scanned in CI.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Key decisions</p>
+    <h2>The choices that make the gate trustworthy.</h2>
+    <div class="decisions">
+      <article class="decision"><h3>Use statistics, not a fixed score cutoff</h3><p>A candidate passes only if we're confident it is no more than 3 points worse than the current version, using paired bootstrap non-inferiority testing.</p><p class="trade"><b>Trade-off:</b> 192 test cases were too few to prove even a harmless change was safe. I grew the suite to 474 instead of loosening the margin.</p></article>
+      <article class="decision"><h3>AI judges must earn the right to block a release</h3><p>An LLM judge can gate only after it agrees with human labels: Cohen's kappa of at least 0.6 and catching at least 80% of real failures, across at least 200 labelled examples.</p><p class="trade"><b>Trade-off:</b> until those labels exist, the judge only reports. Simulated labels don't count.</p></article>
+      <article class="decision"><h3>Block leaks at the output, not the input</h3><p>My pattern-based injection detector caught 40 of 40 known attacks but 0 of 20 new ones. So enforcement moved to the output side: block protected strings and redact personal data before anything leaves.</p><p class="trade"><b>Trade-off:</b> the input detector stays, but only as a monitored signal.</p></article>
+      <article class="decision"><h3>A free, repeatable test model in CI</h3><p>CI runs against a deterministic mock model so every check is free and gives the same answer twice. Real models run in a separate workflow.</p><p class="trade"><b>Trade-off:</b> CI proves the system's behaviour, not any model's quality. That's stated plainly in the README.</p></article>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Results</p>
+    <h2>What it measured.</h2>
+    <div class="results">
+      <div><b>≤ 1 ms</b><span>proxy overhead on 99.7% of 6,720 requests</span></div>
+      <div><b>250/s</b><span>peak requests per second on a shared 2-vCPU machine</span></div>
+      <div><b>137</b><span>automated tests passing, about 98% coverage</span></div>
+    </div>
+    <ul class="points">
+      <li><span><b>The gate made the right calls on four demo releases:</b> a harmless rewording passed, a cheaper model failed, a model without an output guardrail failed with 40 of 40 leaks, and the same model with the guardrail passed with 0 of 40.</span></li>
+      <li><span><b>Real models, real decision:</b> on 514 cases, the smaller gpt-oss-20b scored 95.6% against 99.6% for gpt-oss-120b while costing about 55% less. The gate still said FAIL, because the drop could be as large as 3.9 points, past the 3-point limit.</span></li>
+      <li><span><b>Security in CI:</b> OWASP ZAP, Bandit, Semgrep, gitleaks, pip-audit, Trivy and checkov run on every change, plus an end-to-end canary test on a local Kubernetes cluster.</span></li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">What I'd do next</p>
+    <h2>Honest about what's left.</h2>
+    <ul class="points next">
+      <li><span><b>Qualify the judge</b> with 200 real human labels using the built-in labelling tool.</span></li>
+      <li><span><b>Run on real TrialBridge patient cases</b> instead of the synthetic task.</span></li>
+      <li><span><b>Apply the AWS Terraform.</b> It's written and scanned, about $38 a month to run.</span></li>
+      <li><span><b>High availability:</b> share routing state so the proxy can run as more than one copy.</span></li>
+    </ul>
+    <div class="chips" style="margin-top:8px"><span>Python</span><span>FastAPI</span><span>Prometheus</span><span>Grafana</span><span>Docker</span><span>Kubernetes</span><span>Terraform</span><span>GitHub Actions</span><span>OWASP ZAP</span><span>Semgrep</span><span>Trivy</span></div>
+  </section>
+</main>
+
+<footer class="cta"><div class="wrap">
+  <div class="top"><h2>Want to talk about how I'd bring this to your team?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
+  <div class="next"><a href="../">← Back to all projects</a><span>Next case study: <a href="llm-gateway.html">LLM Gateway →</a></span></div>
+</div></footer>
+</body>
+</html>

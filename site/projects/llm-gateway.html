@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM Gateway case study · Cibi Siddarth</title>
+<meta name="description" content="How the LLM Gateway keeps apps working when an AI provider fails: one endpoint, automatic fallback, shared tools for agents, and an evaluation suite that runs in CI.">
+<meta property="og:title" content="LLM Gateway · one connection to many AI providers">
+<meta property="og:description" content="Case study by Cibi Siddarth: multi-provider routing with fallback, MCP tools, agent delegation and CI evaluation.">
+<meta property="og:image" content="https://cibisid.github.io/og.png">
+<meta property="og:url" content="https://cibisid.github.io/projects/llm-gateway.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231A1916'/%3E%3Ctext x='32' y='41' font-family='Arial,sans-serif' font-weight='700' font-size='24' fill='%23F6F4EF' text-anchor='middle'%3ECS%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/case.css">
+</head>
+<body>
+<header class="nav"><div class="wrap"><a class="brand" href="../"><i>CS</i>Cibi Siddarth</a><a class="back" href="../#work">← All projects</a><a class="btn dark sm" href="../#contact">Get in touch</a></div></header>
+
+<main class="wrap">
+  <section class="head">
+    <p class="eyebrow">Case study · AI infrastructure</p>
+    <h1>LLM Gateway</h1>
+    <p class="plain">One connection to many AI providers, so an app keeps answering when one of them goes down. It also gives AI agents a shared toolbox and checks its own answer quality on every change.</p>
+    <div class="row"><a class="btn solid" href="../#demo-gateway">Try the live demo</a><a class="btn" href="https://github.com/Cibisid/llm-gateway" target="_blank" rel="noopener">Source code ↗</a></div>
+    <div class="meta">
+      <div><span>Role</span><b>Solo project</b></div>
+      <div><span>Status</span><b>Shipped, CI passing</b></div>
+      <div><span>Tests</span><b>167 tests, 23 eval cases</b></div>
+      <div><span>Built with</span><b>Python, FastAPI, MCP</b></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">The problem</p>
+    <h2>Apps that depend on one AI provider break when it does.</h2>
+    <p>Most AI features are wired straight to a single provider. When that provider has an outage, gets slow, or changes its prices, every user feels it, and the team has to rewrite code to switch. Each team also rebuilds the same plumbing: access control, rate limits, cost tracking and tools for agents.</p>
+    <p>The gateway is a single service in the middle. Apps talk to it in the format they already use, and it handles the rest.</p>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">How it works</p>
+    <h2>Every request takes the same path.</h2>
+    <div class="diagram" role="img" aria-label="LLM Gateway request path: the app calls one OpenAI-compatible endpoint, a security layer checks it, the router ranks providers and falls back on failure, and tools come from an MCP server.">
+      <div class="flow with-arrows" style="--cols:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1.3fr) auto minmax(0,1fr)">
+        <div class="node"><b>1. The app calls one endpoint</b><span>Same request format as OpenAI's API, so any existing SDK works unchanged.</span><code>POST /v1/chat/completions</code></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>2. Security check</b><span>API key, per-key rate limit, personal data redacted from logs, audit trail. With no keys configured it refuses everything.</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node key"><b>3. Router</b><span>Turns a request like "smart" or "cheap" into a ranked list of providers by order, cost or speed. Tries the first, falls back to the next on failure, and records the cost.</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>4. Answer</b><span>Returned in the same format, with which provider answered and what it cost.</span></div>
+      </div>
+      <p class="dlabel">What agents can use</p>
+      <div class="side" style="--n:3">
+        <div class="node"><b>MCP tool server · 11 tools</b><span>Search maintenance manuals, read equipment data, and query live public data: UK river levels, aviation weather and ECB exchange rates.</span></div>
+        <div class="node"><b>A second agent (A2A)</b><span>The main agent can hand a question to a specialist agent with its own prompt and model.</span></div>
+        <div class="node"><b>Evaluation in CI</b><span>A golden set of questions checks tool use, grounding and answer quality, and fails the build on a regression.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Key decisions</p>
+    <h2>The choices behind it.</h2>
+    <div class="decisions">
+      <article class="decision"><h3>No agent framework</h3><p>Every model call goes through my router, so fallback and cost tracking always apply. A framework would bring its own model clients and quietly skip both.</p><p class="trade"><b>Trade-off:</b> I'd revisit this only for multi-agent conversations or long-running workflow state.</p></article>
+      <article class="decision"><h3>Fail closed</h3><p>If no API keys are configured, the service returns an error for every request instead of running open.</p><p class="trade"><b>Trade-off:</b> a misconfigured deploy is down rather than exposed, which is the right way round.</p></article>
+      <article class="decision"><h3>Unknown cost is never shown as free</h3><p>Only verified prices are recorded. Models without one report no cost and sort last when ranking by price.</p><p class="trade"><b>Trade-off:</b> some providers show "unknown" cost until their prices are verified.</p></article>
+      <article class="decision"><h3>Tools explain their own numbers</h3><p>River levels are relative to a station marker, not water depth; exchange rates are daily reference rates. Those caveats live in the tool descriptions so the model can't misreport them.</p><p class="trade"><b>Trade-off:</b> longer tool descriptions, in exchange for fewer confident wrong answers.</p></article>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Results</p>
+    <h2>What's verified.</h2>
+    <div class="results">
+      <div><b>167</b><span>automated tests, no network or keys needed</span></div>
+      <div><b>23 / 23</b><span>evaluation cases passed against a live model and live data, for about $0.43</span></div>
+      <div><b>26 / 26</b><span>end-to-end checks against a running server over real HTTP</span></div>
+    </div>
+    <ul class="points">
+      <li><span><b>The evaluation caught five real bugs that unit tests missed.</b> For example, the AI judge failed a correct answer for "using a future date" because it guessed today's date from its training data. I fixed it by giving the judge the real date.</span></li>
+      <li><span><b>It also caught a factual error:</b> the ECB publishes rates against the euro, so a pound-to-dollar rate is derived, and the tool now says so.</span></li>
+      <li><span><b>Live calls verified</b> against Anthropic's API and all three public data sources.</span></li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">What I'd do next</p>
+    <h2>Honest about what's left.</h2>
+    <ul class="points next">
+      <li><span><b>Verify the OpenAI and Azure OpenAI adapters</b> with real credentials. Today they're tested with mocks only.</span></li>
+      <li><span><b>Deploy to Azure.</b> The infrastructure is written in Bicep but has not been applied.</span></li>
+      <li><span><b>Shared rate limits</b> through Redis, so limits hold across several copies of the service.</span></li>
+      <li><span><b>A small web interface</b> so non-engineers can try it without running Python.</span></li>
+    </ul>
+    <div class="chips" style="margin-top:8px"><span>Python</span><span>FastAPI</span><span>Pydantic</span><span>MCP 2.0</span><span>A2A</span><span>Anthropic API</span><span>Docker</span><span>Azure Bicep</span><span>GitHub Actions</span></div>
+  </section>
+</main>
+
+<footer class="cta"><div class="wrap">
+  <div class="top"><h2>Want to talk about how I'd bring this to your team?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
+  <div class="next"><a href="gauntlet.html">← Gauntlet</a><span>Next case study: <a href="trialbridge.html">TrialBridge →</a></span></div>
+</div></footer>
+</body>
+</html>
