@@ -1132,7 +1132,7 @@ function paintAgent(key) {
 function paintScout() {
   const s = snapshot && snapshot.scout, card = $('#live .agent[data-agent="scout"]');
   if (!s || !card) return;
-  const last = (s.scans || [])[0];
+  const last = latest(s.scans);
   const scanning = last && RUNNING.includes(last.status);
   card.dataset.state = scanning ? 'working' : 'sleep';
   $('.state', card).textContent = scanning ? 'Scanning now' : 'Resting between scans';
@@ -1150,8 +1150,8 @@ function paintFeed() {
   const add = (who, runs) => (runs || []).forEach(r => items.push({ who, r }));
   Object.entries(AGENTS).forEach(([k, a]) => add(a.project, runsFor(k)));
   add(SITE.project, runsFor('site'));
-  const scans = (snapshot && snapshot.scout && snapshot.scout.scans) || [];
-  scans.forEach(r => items.push({ who: 'job-watcher', r, scan: true }));
+  const scans = ((snapshot && snapshot.scout && snapshot.scout.scans) || []).filter(r => r.conclusion !== 'cancelled' && r.conclusion !== 'skipped');
+  scans.slice(0, 2).forEach(r => items.push({ who: 'job-watcher', r, scan: true }));  // keep room for the other projects
   if (!items.length) return;
   items.sort((a, b) => Date.parse(b.r.updated || b.r.created) - Date.parse(a.r.updated || a.r.created));
   $('#feed').innerHTML = items.slice(0, 8).map(({ who, r, scan }) => {
@@ -1179,12 +1179,14 @@ function paintStatus() {
 
 function paint() { Object.keys(AGENTS).forEach(paintAgent); paintScout(); paintFeed(); paintStatus(); }
 
-async function fetchRepo(repo) {
-  const res = await fetch(`https://api.github.com/repos/${repo}/actions/runs?per_page=20`, { headers: { Accept: 'application/vnd.github+json' } });
+async function fetchRepo(repo, pushOnly) {
+  const res = await fetch(`https://api.github.com/repos/${repo}/actions/runs?per_page=30`, { headers: { Accept: 'application/vnd.github+json' } });
   if (res.status === 403 || res.status === 429) { const e = new Error('rate limited'); e.limit = true; throw e; }
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
-  return data.workflow_runs.filter(r => r.event === 'push' || r.event === 'workflow_dispatch').slice(0, 8).map(slimApi);
+  return data.workflow_runs
+    .filter(r => r.head_branch === 'main' && (r.event === 'push' || (!pushOnly && r.event === 'workflow_dispatch')))
+    .slice(0, 8).map(slimApi);
 }
 
 async function refreshLive(force) {
@@ -1197,7 +1199,7 @@ async function refreshLive(force) {
   try {
     const keys = [...Object.keys(AGENTS), 'site'];
     const repos = keys.map(k => (AGENTS[k] || SITE).repo);
-    const results = await Promise.all(repos.map(fetchRepo));
+    const results = await Promise.all(repos.map((repo, i) => fetchRepo(repo, keys[i] === 'site')));
     live = Object.fromEntries(keys.map((k, i) => [k, results[i]]));
     liveAt = Date.now(); limited = false; failed = false;
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ at: liveAt, data: live })); } catch (e) { /* ignore */ }

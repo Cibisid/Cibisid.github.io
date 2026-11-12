@@ -57,18 +57,20 @@ def slim(run: dict, with_message: bool = True) -> dict:
     return out
 
 
-def public_runs(repo: str, token: str | None) -> list[dict]:
-    data = gh(f"repos/{OWNER}/{repo}/actions/runs?per_page=20", token)
-    # Only work a person started: pushes and manual runs. Scheduled runs (like this site's own
-    # hourly refresh) would otherwise change the snapshot every hour and force a redeploy.
-    runs = [r for r in data.get("workflow_runs", []) if r.get("event") in ("push", "workflow_dispatch")]
+def public_runs(repo: str, token: str | None, events: tuple[str, ...] = ("push", "workflow_dispatch")) -> list[dict]:
+    data = gh(f"repos/{OWNER}/{repo}/actions/runs?per_page=30", token)
+    # Main branch only (side branches can hold unrelated experiments), and only work a person
+    # started. Scheduled runs, like this site's own hourly refresh, would otherwise change the
+    # snapshot every hour and force a redeploy.
+    runs = [r for r in data.get("workflow_runs", []) if r.get("head_branch") == "main" and r.get("event") in events]
     return [slim(r) for r in runs[:8]]
 
 
 def scout(token: str) -> dict:
     """Aggregate-only view of the private job-watcher repo."""
     runs = gh(f"repos/{OWNER}/{PRIVATE_SCOUT}/actions/runs?per_page=10", token).get("workflow_runs", [])
-    scans = [slim(r, with_message=False) for r in runs if r.get("name") == "Job Watcher"][:6]
+    scans = [slim(r, with_message=False) for r in runs
+             if r.get("name") == "Job Watcher" and r.get("conclusion") not in ("cancelled", "skipped")][:6]
     dash = gh(f"repos/{OWNER}/{PRIVATE_SCOUT}/contents/data/dashboard.json", token, raw=True)
     status = gh(f"repos/{OWNER}/{PRIVATE_SCOUT}/contents/data/status.json", token, raw=True)
 
@@ -104,7 +106,9 @@ def main(out_path: str) -> int:
 
     for key, repo in PUBLIC.items():
         try:
-            snap["repos"][key] = {"repo": f"{OWNER}/{repo}", "runs": public_runs(repo, token)}
+            # The site's own manual refreshes are not news; only real pushes count there.
+            events = ("push",) if key == "site" else ("push", "workflow_dispatch")
+            snap["repos"][key] = {"repo": f"{OWNER}/{repo}", "runs": public_runs(repo, token, events)}
         except (urllib.error.URLError, TimeoutError, ValueError) as exc:
             print(f"warn: {repo}: {exc}", file=sys.stderr)
 
