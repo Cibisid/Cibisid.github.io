@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>job-watcher case study · Cibi Siddarth</title>
-<meta name="description" content="How job-watcher scans hundreds of company career pages every three hours with GitHub Actions and turns them into a ranked shortlist.">
+<meta name="description" content="How job-watcher scans hundreds of company career pages several times a day with GitHub Actions and turns them into a ranked shortlist.">
 <meta property="og:title" content="job-watcher · an automatic job hunter">
 <meta property="og:description" content="Case study by Cibi Siddarth: a serverless scanner over ~430 company career boards, built entirely on GitHub.">
 <meta property="og:image" content="https://cibisid.github.io/og.png">
@@ -22,7 +22,7 @@
   <section class="head">
     <p class="eyebrow">Case study · Automation</p>
     <h1>job-watcher</h1>
-    <p class="plain">An automatic job hunter. Every three hours it checks hundreds of company career pages, throws out the noise, and hands back a ranked shortlist.</p>
+    <p class="plain">An automatic job hunter. Several times a day it checks hundreds of company career pages, throws out the noise, and hands back a ranked shortlist.</p>
     <div class="row"><a class="btn solid" href="../#demo-jobs">Try the live demo</a><span style="font-size:14.5px; color:var(--muted)">Private repository. Happy to walk through the code on a call.</span></div>
     <div class="meta">
       <div><span>Role</span><b>Solo project</b></div>
@@ -44,7 +44,7 @@
     <h2>The whole system runs on GitHub, with no servers.</h2>
     <div class="diagram" role="img" aria-label="job-watcher pipeline: a GitHub Actions schedule triggers a scan of about 430 career boards, postings are screened and scored, and results are published as a dashboard and email alerts.">
       <div class="flow with-arrows" style="--cols:minmax(0,1fr) auto minmax(0,1.2fr) auto minmax(0,1.2fr) auto minmax(0,1fr)">
-        <div class="node"><b>1. Scheduled run</b><span>GitHub Actions starts a scan every 3 hours. A weekly job looks for new company boards to add.</span></div>
+        <div class="node"><b>1. Scheduled run</b><span>GitHub Actions is set to start a scan every 3 hours. In practice GitHub runs about 3 a day, because it delays or skips scheduled jobs when busy. A weekly job looks for new company boards.</span></div>
         <div class="arrow" aria-hidden="true">→</div>
         <div class="node key"><b>2. Read the career boards</b><span>Reads about 430 boards in parallel straight from the hiring systems companies use: Greenhouse, Lever, Ashby, Workday and Amazon's own site.</span></div>
         <div class="arrow" aria-hidden="true">→</div>
@@ -71,8 +71,8 @@
     <h2>What it handles.</h2>
     <div class="results">
       <div><b>~430</b><span>company career boards checked each run</span></div>
-      <div><b>~125k</b><span>postings read per run</span></div>
-      <div><b>8 / day</b><span>scans, one every 3 hours</span></div>
+      <div><b>~120k</b><span>postings read per run</span></div>
+      <div><b>~3 / day</b><span>scans actually run, on a 3-hour schedule</span></div>
     </div>
     <ul class="points">
       <li><span><b>Hundreds of matching open roles at well over a hundred companies</b> on the live dashboard at any time, newest first.</span></li>
@@ -84,6 +84,7 @@
     <p class="eyebrow">What I'd do next</p>
     <h2>Honest about what's left.</h2>
     <ul class="points next">
+      <li><span><b>Run on a reliable scheduler.</b> GitHub skips some scheduled runs, so only about 3 of the 8 planned scans a day happen.</span></li>
       <li><span><b>Add automated tests</b> for each board reader and the screening rules.</span></li>
       <li><span><b>Publish a public version</b> that anyone can point at their own list of companies.</span></li>
     </ul>

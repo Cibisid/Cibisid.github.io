@@ -310,6 +310,128 @@ dialog{border-radius:16px}
 .big b{font-weight:600; letter-spacing:-.02em}
 .jobs .score{font-weight:600}
 .btn.solid.sm{border-radius:10px}
+
+/* ---------- Live agent desk ---------- */
+.live-link{display:inline-flex; align-items:center; gap:7px}
+.live-link b, .live-dot{width:8px; height:8px; border-radius:50%; background:#3E9A5C; box-shadow:0 0 0 0 rgb(62 154 92 / .5); animation:livepulse 2s ease-out infinite; flex:none}
+@keyframes livepulse{0%{box-shadow:0 0 0 0 rgb(62 154 92 / .55)}70%{box-shadow:0 0 0 7px rgb(62 154 92 / 0)}100%{box-shadow:0 0 0 0 rgb(62 154 92 / 0)}}
+#live{background:var(--panel); border-top:1px solid var(--line); border-bottom:1px solid var(--line)}
+.desk-status{display:inline-flex; align-items:center; gap:9px; font-size:14px; color:var(--muted); background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:8px 14px}
+.desk-status.off .live-dot{background:var(--faint); animation:none}
+.desk-status b{font-weight:600; color:var(--ink)}
+.agents{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:18px}
+@media (max-width:1100px){ .agents{grid-template-columns:repeat(2, minmax(0,1fr))} }
+@media (max-width:600px){ .agents{grid-template-columns:minmax(0,1fr)} }
+.agent{background:var(--paper); border:1px solid var(--line); border-radius:18px; overflow:hidden; display:flex; flex-direction:column; min-width:0}
+.scene{background:var(--tint); aspect-ratio:240/150; position:relative; border-bottom:1px solid var(--line)}
+.scene svg{display:block; width:100%; height:100%}
+.agent .info{padding:16px 18px 18px; display:flex; flex-direction:column; gap:9px; flex:1; min-width:0}
+.who{display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap}
+.who b{font-size:18px; font-weight:600; letter-spacing:-.02em}
+.who span{font:500 12px/1.4 var(--mono); color:var(--muted); letter-spacing:.02em}
+.state{display:inline-flex; align-items:center; gap:7px; align-self:flex-start; font:600 12.5px/1 var(--sans); padding:7px 11px; border-radius:999px; background:var(--bg); color:var(--muted)}
+.state::before{content:""; width:7px; height:7px; border-radius:50%; background:currentColor}
+.agent[data-state="working"] .state{color:#1F5C63; background:#DDE9E7}
+.agent[data-state="working"] .state::before{animation:livepulse 1.4s ease-out infinite}
+.agent[data-state="happy"] .state, .agent[data-state="calm"] .state{color:var(--good); background:var(--good-soft)}
+.agent[data-state="worried"] .state{color:var(--bad); background:#F6E3DF}
+.agent[data-state="sleep"] .state{color:#5B5F8A; background:#E7E7F1}
+.doing{font-size:14.5px; color:var(--ink2); line-height:1.5; overflow-wrap:anywhere}
+.doing q{font-style:normal; color:var(--ink); font-weight:500; quotes:"“" "”"}
+.when{font-size:13px; color:var(--muted); margin-top:auto}
+.run-link{font-size:13.5px; font-weight:500; text-decoration:none}
+.run-link:hover{text-decoration:underline}
+.scout-stats{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px}
+.scout-stats div{background:var(--bg); border-radius:10px; padding:8px 10px; min-width:0}
+.scout-stats b{display:block; font-size:18px; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+.scout-stats span{font-size:12px; color:var(--muted)}
+.feed-wrap{margin-top:28px; background:var(--paper); border:1px solid var(--line); border-radius:18px; padding:22px 24px}
+@media (max-width:600px){ .feed-wrap{padding:18px} }
+.feed-wrap h3{font-size:17px; font-weight:600; letter-spacing:-.01em; margin-bottom:12px}
+.feed{list-style:none; padding:0; margin:0; display:flex; flex-direction:column}
+.feed li{display:grid; grid-template-columns:12px minmax(0,1fr) auto; gap:12px; align-items:baseline; padding:10px 0; border-top:1px solid var(--line); font-size:14.5px}
+.feed li:first-child{border-top:0}
+.feed i{width:9px; height:9px; border-radius:50%; background:var(--good); transform:translateY(-1px)}
+.feed i.bad{background:var(--bad)} .feed i.run{background:#2A8C96; animation:livepulse 1.4s ease-out infinite} .feed i.idle{background:var(--faint)}
+.feed .what{min-width:0; color:var(--ink2); overflow-wrap:anywhere}
+.feed .what b{color:var(--ink); font-weight:600}
+.feed .what a{color:inherit; text-decoration:none} .feed .what a:hover{text-decoration:underline}
+.feed time{font-size:13px; color:var(--muted); white-space:nowrap}
+.desk-note{font-size:13.5px; color:var(--muted); margin-top:14px}
+
+/* robot drawing */
+.bot-svg .desk{fill:#CDB89A} .bot-svg .desk-edge{fill:#B59E7E}
+.bot-svg .shadow{fill:rgb(40 30 15 / .10)}
+.bot-svg .head, .bot-svg .body{fill:var(--c)}
+.bot-svg .arm, .bot-svg .neck{fill:var(--c2)}
+.bot-svg .ant-stem{stroke:var(--c2); stroke-width:4; stroke-linecap:round}
+.bot-svg .bulb{fill:#F2C14E}
+.bot-svg .face{fill:#1C2422}
+.bot-svg .eye{fill:#BDF2E2}
+.bot-svg .eye-line, .bot-svg .mouth, .bot-svg .brows{fill:none; stroke:#BDF2E2; stroke-width:3.2; stroke-linecap:round}
+.bot-svg .cheek{fill:#F4A5A0; opacity:.5}
+.bot-svg .badge{fill:#F6F4EF; opacity:.92}
+.bot-svg .glyph{fill:var(--c2); font:700 11px/1 var(--sans); text-anchor:middle; dominant-baseline:central}
+.bot-svg .mon-frame{fill:#2B3532} .bot-svg .mon-stand{fill:#2B3532} .bot-svg .mon-screen{fill:#14201E}
+.bot-svg .code rect{fill:#5FC8B0; opacity:.85} .bot-svg .code rect.alt{fill:#F2C14E; opacity:.8}
+.bot-svg .scr-ok{fill:none; stroke:#6BD58F; stroke-width:4; stroke-linecap:round; stroke-linejoin:round}
+.bot-svg .scr-bad{fill:none; stroke:#F07C6C; stroke-width:4; stroke-linecap:round}
+.bot-svg .scr-zz, .bot-svg .fx-zzz text{fill:#8E93C4; font:700 12px/1 var(--sans)}
+.bot-svg .fx-zzz text{fill:#6B70A6; font-size:14px}
+.bot-svg .fx-sweat{fill:#8CCBEA}
+.bot-svg .fx-spark path{fill:#F2C14E}
+.bot-svg .scope{fill:var(--c2)}
+
+/* everything optional starts hidden; states reveal parts */
+.bot-svg .e-happy, .bot-svg .e-sleep, .bot-svg .brows, .bot-svg .m-o, .bot-svg .m-flat,
+.bot-svg .code, .bot-svg .scr-ok, .bot-svg .scr-bad, .bot-svg .scr-zz, .bot-svg .scr-dots,
+.bot-svg .fx-zzz, .bot-svg .fx-sweat, .bot-svg .fx-spark{display:none}
+.bot-svg .scr-dots circle{fill:#5FC8B0}
+[data-state="unknown"] .scr-dots{display:inline}
+[data-state="working"] .code{display:inline}
+[data-state="happy"] .scr-ok, [data-state="calm"] .scr-ok{display:inline}
+[data-state="calm"] .scr-ok{opacity:.55}
+[data-state="happy"] .e-open{display:none} [data-state="happy"] .e-happy{display:inline} [data-state="happy"] .fx-spark{display:inline}
+[data-state="worried"] .brows, [data-state="worried"] .scr-bad, [data-state="worried"] .fx-sweat, [data-state="worried"] .m-o{display:inline}
+[data-state="worried"] .m-smile{display:none}
+[data-state="sleep"] .e-open, [data-state="sleep"] .m-smile{display:none}
+[data-state="sleep"] .e-sleep, [data-state="sleep"] .m-flat, [data-state="sleep"] .fx-zzz, [data-state="sleep"] .scr-zz{display:inline}
+[data-state="sleep"] .bulb{fill:#9A9078}
+
+/* motion */
+.bot-svg .bot, .bot-svg .eyes, .bot-svg .e-open rect, .bot-svg .arm, .bot-svg .code, .bot-svg .bulb,
+.bot-svg .fx-zzz text, .bot-svg .fx-sweat, .bot-svg .fx-spark path, .bot-svg .head-g{transform-box:fill-box; transform-origin:center}
+.bot-svg .arm{transform-origin:top center}
+.bot-svg .bot{transform-origin:bottom center; animation:bob 3.2s ease-in-out infinite}
+.bot-svg .e-open rect{animation:blink 4.6s infinite}
+[data-state="working"] .bot{animation:bob 1.6s ease-in-out infinite}
+[data-state="working"] .eyes{transform:translate(4px, 2px)}
+[data-state="working"] .arm-l{animation:typeL .32s ease-in-out infinite alternate}
+[data-state="working"] .arm-r{animation:typeR .32s ease-in-out infinite alternate .16s}
+[data-state="working"] .code{animation:scroll 1.6s linear infinite}
+[data-state="working"] .bulb{animation:pulse .7s ease-in-out infinite}
+[data-state="happy"] .bot{animation:hop 2.4s ease-in-out infinite}
+[data-state="happy"] .fx-spark path{animation:spark 2.4s ease-in-out infinite}
+[data-state="happy"] .fx-spark path:nth-child(2){animation-delay:.5s} [data-state="happy"] .fx-spark path:nth-child(3){animation-delay:1s}
+[data-state="worried"] .head-g{animation:shake 3s ease-in-out infinite}
+[data-state="worried"] .fx-sweat{animation:sweat 2.2s ease-in infinite}
+[data-state="worried"] .bulb{animation:pulse 1.1s ease-in-out infinite; fill:#F07C6C}
+[data-state="sleep"] .bot{animation:breathe 4.2s ease-in-out infinite}
+[data-state="sleep"] .fx-zzz text{animation:zz 3.6s ease-out infinite; opacity:0}
+[data-state="sleep"] .fx-zzz text:nth-child(2){animation-delay:1.2s} [data-state="sleep"] .fx-zzz text:nth-child(3){animation-delay:2.4s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.975)}}
+@keyframes hop{0%,55%,100%{transform:translateY(0)}20%{transform:translateY(-11px)}34%{transform:translateY(0)}44%{transform:translateY(-4px)}}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes typeL{from{transform:rotate(4deg)}to{transform:rotate(-10deg)}}
+@keyframes typeR{from{transform:rotate(-4deg)}to{transform:rotate(10deg)}}
+@keyframes scroll{from{transform:translateY(0)}to{transform:translateY(-24px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes shake{0%,82%,100%{transform:rotate(0)}86%{transform:rotate(-3deg)}90%{transform:rotate(3deg)}94%{transform:rotate(-2deg)}}
+@keyframes sweat{0%{opacity:0; transform:translateY(-3px)}25%{opacity:1}85%{opacity:1; transform:translateY(7px)}100%{opacity:0; transform:translateY(9px)}}
+@keyframes spark{0%,100%{opacity:0; transform:scale(.3)}50%{opacity:1; transform:scale(1)}}
+@keyframes zz{0%{opacity:0; transform:translate(0,0) scale(.6)}25%{opacity:1}100%{opacity:0; transform:translate(12px,-20px) scale(1.15)}}
+@media (prefers-reduced-motion: reduce){ .bot-svg *{animation:none!important} .live-link b, .live-dot, .agent .state::before, .feed i.run{animation:none!important} }
 </style>
 </head>
 <body>
@@ -317,7 +439,7 @@ dialog{border-radius:16px}
 <header class="nav">
   <div class="wrap">
     <a class="brand" href="#top"><i>CS</i>Cibi Siddarth</a>
-    <nav class="links" aria-label="Sections"><a href="#work">Work</a><a href="#experience">Experience</a><a href="#about">About</a><a href="Cibi_Siddarth_Resume.pdf" target="_blank" rel="noopener">Resume</a></nav>
+    <nav class="links" aria-label="Sections"><a class="live-link" href="#live"><b></b>Live</a><a href="#work">Work</a><a href="#experience">Experience</a><a href="#about">About</a><a href="Cibi_Siddarth_Resume.pdf" target="_blank" rel="noopener">Resume</a></nav>
     <a class="btn dark sm" href="#contact">Get in touch</a>
   </div>
 </header>
@@ -340,6 +462,64 @@ dialog{border-radius:16px}
       <div><b>AWS Certified</b><span>Machine Learning Engineer</span></div>
       <div><b>Runner-up</b><span>AI for Good Hackathon 2025</span></div>
     </div>
+  </div>
+</section>
+
+<section id="live" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="eyebrow">Live from GitHub</p><h2>My agents, right now</h2></div>
+      <p>Each robot is connected to one of my projects. When code changes, that project's automated checks run and its robot gets to work, then celebrates or flags a problem. The scout wakes up on a schedule to scan company career pages. Nothing here is staged.</p>
+    </div>
+    <p class="desk-status off" id="desk-status" role="status"><span class="live-dot"></span><span id="desk-status-text">Checking GitHub…</span></p>
+    <div class="agents" style="margin-top:20px">
+      <article class="agent" data-agent="gauntlet" data-state="unknown" style="--c:#2E7A82;--c2:#1F5C63;--tint:#D9E8E5">
+        <div class="scene" data-glyph="✓"></div>
+        <div class="info">
+          <div class="who"><b>Gatekeeper</b><span>GAUNTLET</span></div>
+          <span class="state">Checking</span>
+          <p class="doing">Tests every AI update before it can be released.</p>
+          <p class="when"></p>
+          <a class="run-link" href="https://github.com/Cibisid/gauntlet/actions" target="_blank" rel="noopener">See it on GitHub ↗</a>
+        </div>
+      </article>
+      <article class="agent" data-agent="gateway" data-state="unknown" style="--c:#C29A66;--c2:#97734A;--tint:#F1E8DA">
+        <div class="scene" data-glyph="↔"></div>
+        <div class="info">
+          <div class="who"><b>Switch</b><span>LLM GATEWAY</span></div>
+          <span class="state">Checking</span>
+          <p class="doing">Keeps apps answering when an AI provider goes down.</p>
+          <p class="when"></p>
+          <a class="run-link" href="https://github.com/Cibisid/llm-gateway/actions" target="_blank" rel="noopener">See it on GitHub ↗</a>
+        </div>
+      </article>
+      <article class="agent" data-agent="trial" data-state="unknown" style="--c:#C07A57;--c2:#93553A;--tint:#F3E3D9">
+        <div class="scene" data-glyph="+"></div>
+        <div class="info">
+          <div class="who"><b>Doc</b><span>TRIALBRIDGE</span></div>
+          <span class="state">Checking</span>
+          <p class="doing">Matches patients to clinical trials, and never guesses.</p>
+          <p class="when"></p>
+          <a class="run-link" href="https://github.com/Cibisid/trialbridge/actions" target="_blank" rel="noopener">See it on GitHub ↗</a>
+        </div>
+      </article>
+      <article class="agent" data-agent="scout" data-state="sleep" style="--c:#7B8F63;--c2:#5A6A4C;--tint:#E6EBDD">
+        <div class="scene" data-glyph="◎"></div>
+        <div class="info">
+          <div class="who"><b>Scout</b><span>JOB-WATCHER</span></div>
+          <span class="state">On a schedule</span>
+          <p class="doing">Wakes up on a 3-hour schedule to scan about 430 company career pages. Private repo, so only totals appear here.</p>
+          <div class="scout-stats" hidden></div>
+          <p class="when"></p>
+          <a class="run-link" href="projects/job-watcher.html">How it works →</a>
+        </div>
+      </article>
+    </div>
+    <div class="feed-wrap">
+      <h3>Recent activity</h3>
+      <ol class="feed" id="feed"><li><i class="idle"></i><span class="what">Loading recent activity…</span><time></time></li></ol>
+    </div>
+    <p class="desk-note">Live data comes from GitHub's public API and refreshes every few minutes while this page is open. A snapshot is also rebuilt every hour.</p>
   </div>
 </section>
 
@@ -456,12 +636,12 @@ dialog{border-radius:16px}
           <p class="desc">New jobs are posted on hundreds of separate company websites, and the big job boards are cluttered with staffing agencies and repeat listings. Keeping up by hand means refreshing tabs all day.</p>
           <p class="how-h">How it works</p>
           <ol class="how">
-            <li>Every 3 hours, it visits about 430 company job boards and collects every new posting.</li>
+            <li>Several times a day, on a 3-hour schedule, it visits about 430 company job boards and collects every new posting.</li>
             <li>It throws out staffing agencies and roles that won't sponsor.</li>
             <li>It scores each remaining job from 1 to 5 for how well it fits, and shows the best ones on a dashboard.</li>
           </ol>
           <p class="short"><b>In short:</b> it does the daily job-board refreshing, then hands you a shortlist.</p>
-          <div class="stats"><div><b>~430</b><span>job boards checked</span></div><div><b>~125k</b><span>postings per scan</span></div><div><b>3 hrs</b><span>between scans</span></div></div>
+          <div class="stats"><div><b>~430</b><span>job boards checked</span></div><div><b>~120k</b><span>postings per scan</span></div><div><b>~3 / day</b><span>scans actually run</span></div></div>
           <p class="stack">Built with Python · GitHub Actions · job-board APIs</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-jobs">Open live demo</button><a class="btn sm" href="projects/job-watcher.html">Read case study</a><span class="private">Private repo</span></div>
         </div>
@@ -824,6 +1004,219 @@ $('#copy').addEventListener('click', async e => {
   try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied'; }
   catch (err) { const sel = getSelection(), rg = document.createRange(); rg.selectNodeContents($('#mail')); sel.removeAllRanges(); sel.addRange(rg); btn.textContent = 'Selected, press Ctrl+C'; }
   setTimeout(() => btn.textContent = 'Copy', 2200);
+});
+})();
+</script>
+<template id="bot-tpl">
+<svg class="bot-svg" viewBox="0 0 240 150" aria-hidden="true" focusable="false">
+  <ellipse class="shadow" cx="120" cy="141" rx="104" ry="5"/>
+  <g class="bot">
+    <g class="head-g">
+      <line class="ant-stem" x1="96" y1="22" x2="96" y2="34"/>
+      <circle class="bulb" cx="96" cy="18" r="6"/>
+      <rect class="head" x="56" y="32" width="80" height="54" rx="22"/>
+      <rect class="face" x="65" y="42" width="62" height="34" rx="15"/>
+      <g class="eyes">
+        <g class="e-open"><rect class="eye" x="79" y="51" width="10" height="14" rx="5"/><rect class="eye" x="103" y="51" width="10" height="14" rx="5"/></g>
+        <g class="e-happy"><path class="eye-line" d="M78 61 q6 -9 12 0"/><path class="eye-line" d="M102 61 q6 -9 12 0"/></g>
+        <g class="e-sleep"><path class="eye-line" d="M78 59 h12"/><path class="eye-line" d="M102 59 h12"/></g>
+      </g>
+      <path class="brows" d="M77 47 l11 3 M115 47 l-11 3"/>
+      <ellipse class="cheek" cx="73" cy="68" rx="4.5" ry="2.8"/><ellipse class="cheek" cx="119" cy="68" rx="4.5" ry="2.8"/>
+      <path class="mouth m-smile" d="M90 69 q6 4.5 12 0"/>
+      <path class="mouth m-flat" d="M91 70 h10"/>
+      <ellipse class="mouth m-o" cx="96" cy="70" rx="2.6" ry="3"/>
+    </g>
+    <rect class="neck" x="88" y="84" width="16" height="6" rx="3"/>
+    <rect class="body" x="66" y="88" width="60" height="40" rx="16"/>
+    <circle class="badge" cx="96" cy="104" r="9"/>
+    <text class="glyph" x="96" y="104.5">G</text>
+  </g>
+  <rect class="desk" x="8" y="118" width="224" height="9" rx="4.5"/>
+  <rect class="desk-edge" x="20" y="126" width="200" height="3" rx="1.5"/>
+  <rect class="arm arm-l" x="55" y="92" width="13" height="30" rx="6.5"/>
+  <rect class="arm arm-r" x="124" y="92" width="13" height="30" rx="6.5"/>
+  <g class="monitor">
+    <rect class="mon-stand" x="178" y="104" width="6" height="15"/>
+    <rect class="mon-stand" x="168" y="115" width="26" height="4" rx="2"/>
+    <rect class="mon-frame" x="150" y="62" width="62" height="46" rx="7"/>
+    <svg x="155" y="67" width="52" height="36" viewBox="0 0 52 36">
+      <rect class="mon-screen" width="52" height="36" rx="4"/>
+      <g class="code">
+        <rect x="5" y="5" width="26" height="3.5" rx="1.7"/><rect class="alt" x="5" y="11" width="18" height="3.5" rx="1.7"/><rect x="5" y="17" width="34" height="3.5" rx="1.7"/><rect x="11" y="23" width="22" height="3.5" rx="1.7"/>
+        <rect x="5" y="29" width="26" height="3.5" rx="1.7"/><rect class="alt" x="5" y="35" width="18" height="3.5" rx="1.7"/><rect x="5" y="41" width="34" height="3.5" rx="1.7"/><rect x="11" y="47" width="22" height="3.5" rx="1.7"/>
+        <rect x="5" y="53" width="26" height="3.5" rx="1.7"/>
+      </g>
+      <path class="scr-ok" d="M16 18 l7 7 l13 -14"/>
+      <path class="scr-bad" d="M18 10 l16 16 M34 10 l-16 16"/>
+      <text class="scr-zz" x="15" y="23">z z</text>
+      <g class="scr-dots"><circle cx="16" cy="18" r="2.5"/><circle cx="26" cy="18" r="2.5"/><circle cx="36" cy="18" r="2.5"/></g>
+    </svg>
+  </g>
+  <g class="fx-zzz"><text x="134" y="44">z</text><text x="142" y="36">z</text><text x="150" y="27">Z</text></g>
+  <path class="fx-sweat" d="M141 38 q4.5 6.5 0 9.5 q-4.5 -3 0 -9.5z"/>
+  <g class="fx-spark"><path d="M38 30 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2z"/><path d="M150 24 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6z"/><path d="M26 70 l1.4 3.4 l3.4 1.4 l-3.4 1.4 l-1.4 3.4 l-1.4 -3.4 l-3.4 -1.4 l3.4 -1.4z"/></g>
+</svg>
+</template>
+<script>
+/* Live agent desk: each robot's mood comes from real GitHub Actions runs. */
+(() => {
+const AGENTS = {
+  gauntlet: { repo: 'Cibisid/gauntlet', project: 'Gauntlet' },
+  gateway: { repo: 'Cibisid/llm-gateway', project: 'LLM Gateway' },
+  trial: { repo: 'Cibisid/trialbridge', project: 'TrialBridge' },
+};
+const SITE = { repo: 'Cibisid/Cibisid.github.io', project: 'This website' };
+const CACHE_KEY = 'agentdesk:v1', CACHE_MS = 120000, REFRESH_MS = 300000;
+const RUNNING = ['queued', 'in_progress', 'waiting', 'requested', 'pending'];
+const FAILED = ['failure', 'timed_out', 'startup_failure', 'action_required'];
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let snapshot = null, live = null, liveAt = 0, limited = false, failed = false;
+
+/* draw the robots */
+const tpl = $('#bot-tpl');
+document.querySelectorAll('#live .scene').forEach(scene => {
+  const svg = document.importNode(tpl.content, true);
+  $('.glyph', svg).textContent = scene.dataset.glyph || '';
+  scene.appendChild(svg);
+});
+
+const ago = iso => {
+  const s = (Date.now() - Date.parse(iso)) / 1000;
+  if (!isFinite(s)) return '';
+  if (s < 45) return 'just now';
+  const m = s / 60; if (m < 60) return `${Math.round(m)} min ago`;
+  const h = m / 60; if (h < 24) return `${Math.round(h)} h ago`;
+  const d = h / 24; return d < 2 ? 'yesterday' : `${Math.round(d)} days ago`;
+};
+const slimApi = r => ({
+  workflow: r.name, event: r.event, status: r.status, conclusion: r.conclusion,
+  created: r.created_at, updated: r.updated_at, started: r.run_started_at,
+  message: ((r.head_commit && r.head_commit.message) || '').split('\n')[0].slice(0, 140), url: r.html_url,
+});
+const latest = runs => {
+  for (const r of runs || []) {
+    if (RUNNING.includes(r.status)) return r;
+    if (r.conclusion === 'cancelled' || r.conclusion === 'skipped') continue;
+    return r;
+  }
+  return null;
+};
+const runsFor = key => (live && live[key]) || (snapshot && snapshot.repos && snapshot.repos[key] && snapshot.repos[key].runs) || null;
+
+function paintAgent(key) {
+  const card = $(`#live .agent[data-agent="${key}"]`);
+  const runs = runsFor(key), r = latest(runs);
+  if (!card || !r) return;
+  let state, label, doing, when;
+  const msg = `<q>${esc(r.message || 'latest change')}</q>`;
+  if (RUNNING.includes(r.status)) {
+    state = 'working'; label = 'Working';
+    doing = `Checking a new change: ${msg}`; when = `Started ${ago(r.started || r.created)}`;
+  } else if (FAILED.includes(r.conclusion)) {
+    state = 'worried'; label = 'Needs attention';
+    doing = `A check failed on the latest change: ${msg}`; when = `Finished ${ago(r.updated)}`;
+  } else {
+    const fresh = Date.now() - Date.parse(r.updated) < 864e5;
+    state = fresh ? 'happy' : 'calm'; label = fresh ? 'Just passed' : 'All checks passing';
+    doing = `Every check passed on ${msg}`; when = `Finished ${ago(r.updated)}`;
+  }
+  card.dataset.state = state;
+  $('.state', card).textContent = label;
+  $('.doing', card).innerHTML = doing;
+  $('.when', card).textContent = when;
+  if (r.url) $('.run-link', card).href = r.url;
+}
+
+function paintScout() {
+  const s = snapshot && snapshot.scout, card = $('#live .agent[data-agent="scout"]');
+  if (!s || !card) return;
+  const last = (s.scans || [])[0];
+  const scanning = last && RUNNING.includes(last.status);
+  card.dataset.state = scanning ? 'working' : 'sleep';
+  $('.state', card).textContent = scanning ? 'Scanning now' : 'Resting between scans';
+  $('.doing', card).textContent = scanning
+    ? `Reading about ${s.boards_total} company career pages right now.`
+    : `Last scan read ${Number(s.postings_read).toLocaleString('en-US')} postings from ${s.boards_ok} of ${s.boards_total} company career pages.`;
+  const st = $('.scout-stats', card);
+  st.innerHTML = `<div><b>${Number(s.open_roles).toLocaleString('en-US')}</b><span>roles that fit</span></div><div><b>${s.companies}</b><span>companies</span></div><div><b>${s.new_24h}</b><span>new today</span></div><div><b>${Number(s.screened_out).toLocaleString('en-US')}</b><span>filtered out</span></div>`;
+  st.hidden = false;
+  $('.when', card).textContent = scanning ? `Started ${ago(last.started || last.created)}` : `Last scan finished ${ago((last && last.updated) || s.updated)}`;
+}
+
+function paintFeed() {
+  const items = [];
+  const add = (who, runs) => (runs || []).forEach(r => items.push({ who, r }));
+  Object.entries(AGENTS).forEach(([k, a]) => add(a.project, runsFor(k)));
+  add(SITE.project, runsFor('site'));
+  const scans = (snapshot && snapshot.scout && snapshot.scout.scans) || [];
+  scans.forEach(r => items.push({ who: 'job-watcher', r, scan: true }));
+  if (!items.length) return;
+  items.sort((a, b) => Date.parse(b.r.updated || b.r.created) - Date.parse(a.r.updated || a.r.created));
+  $('#feed').innerHTML = items.slice(0, 8).map(({ who, r, scan }) => {
+    const running = RUNNING.includes(r.status), bad = FAILED.includes(r.conclusion);
+    const dot = running ? 'run' : bad ? 'bad' : (r.conclusion === 'success' ? '' : 'idle');
+    let verb;
+    if (scan) verb = running ? 'is scanning career pages' : 'finished a scan';
+    else if (who === SITE.project) verb = running ? 'is deploying' : bad ? 'failed to deploy' : 'deployed';
+    else verb = running ? 'is checking' : bad ? 'failed a check on' : 'passed checks on';
+    const msg = !scan && r.message ? ` <a href="${esc(r.url)}" target="_blank" rel="noopener">“${esc(r.message)}”</a>` : '';
+    const t = r.updated || r.created;
+    return `<li><i class="${dot}"></i><span class="what"><b>${esc(who)}</b> ${verb}${msg}</span><time datetime="${esc(t)}">${ago(t)}</time></li>`;
+  }).join('');
+}
+
+function paintStatus() {
+  const el = $('#desk-status-text');
+  $('#desk-status').classList.toggle('off', !live);
+  if (live) el.innerHTML = `<b>Live</b> · checked ${ago(new Date(liveAt).toISOString())}`;
+  else if (snapshot && limited) el.innerHTML = `Showing the snapshot from ${ago(snapshot.generated)}. GitHub's hourly limit for your network was reached.`;
+  else if (snapshot && failed) el.innerHTML = `Showing the snapshot from ${ago(snapshot.generated)}. GitHub didn't answer just now.`;
+  else if (snapshot) el.innerHTML = `Snapshot from ${ago(snapshot.generated)} · checking for newer activity…`;
+  else if (failed || limited) el.textContent = "Couldn't reach GitHub right now. Try again in a few minutes.";
+}
+
+function paint() { Object.keys(AGENTS).forEach(paintAgent); paintScout(); paintFeed(); paintStatus(); }
+
+async function fetchRepo(repo) {
+  const res = await fetch(`https://api.github.com/repos/${repo}/actions/runs?per_page=20`, { headers: { Accept: 'application/vnd.github+json' } });
+  if (res.status === 403 || res.status === 429) { const e = new Error('rate limited'); e.limit = true; throw e; }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return data.workflow_runs.filter(r => r.event === 'push' || r.event === 'workflow_dispatch').slice(0, 8).map(slimApi);
+}
+
+async function refreshLive(force) {
+  if (!force) {
+    try {
+      const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      if (c && Date.now() - c.at < CACHE_MS) { live = c.data; liveAt = c.at; paint(); return; }
+    } catch (e) { /* storage unavailable: just fetch */ }
+  }
+  try {
+    const keys = [...Object.keys(AGENTS), 'site'];
+    const repos = keys.map(k => (AGENTS[k] || SITE).repo);
+    const results = await Promise.all(repos.map(fetchRepo));
+    live = Object.fromEntries(keys.map((k, i) => [k, results[i]]));
+    liveAt = Date.now(); limited = false; failed = false;
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ at: liveAt, data: live })); } catch (e) { /* ignore */ }
+  } catch (e) {
+    if (e.limit) limited = true; else failed = true;
+  }
+  paint();
+}
+
+fetch('live.json', { cache: 'no-cache' })
+  .then(r => (r.ok ? r.json() : null))
+  .then(j => { snapshot = j; paint(); })
+  .catch(() => {})
+  .finally(() => refreshLive(false));
+
+setInterval(() => { if (!document.hidden) refreshLive(true); }, REFRESH_MS);
+setInterval(paint, 30000);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && Date.now() - liveAt > CACHE_MS) refreshLive(true);
 });
 })();
 </script>

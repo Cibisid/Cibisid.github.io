@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: "41 * * * *"   # hourly: refresh live.json for the agent desk
 
 permissions:
   contents: read
@@ -22,9 +24,21 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - name: Build live agent snapshot
+        id: live
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Optional. A read-only token for the private job-watcher repo; only totals are published.
+          JOB_WATCHER_TOKEN: ${{ secrets.JOB_WATCHER_TOKEN }}
+          # Only the hourly run skips unchanged snapshots; pushes always deploy.
+          PREV_URL: ${{ github.event_name == 'schedule' && 'https://cibisid.github.io/live.json' || '' }}
+        run: python3 scripts/build_live.py site/live.json
+      - if: steps.live.outputs.changed == 'true'
+        uses: actions/configure-pages@v5
+      - if: steps.live.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./site
-      - id: deployment
+      - if: steps.live.outputs.changed == 'true'
+        id: deployment
         uses: actions/deploy-pages@v4
