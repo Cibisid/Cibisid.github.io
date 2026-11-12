@@ -22,7 +22,7 @@
   <section class="head">
     <p class="eyebrow">Case study · Healthcare AI</p>
     <h1>TrialBridge</h1>
-    <p class="plain">Finds clinical trials a patient may qualify for, checks every eligibility rule, and says UNKNOWN instead of guessing when the patient's record is missing something.</p>
+    <p class="plain">Matches patients to clinical trials and evaluates every eligibility criterion, returning UNKNOWN rather than guessing when the record lacks the required data.</p>
     <div class="row"><a class="btn solid" href="../#demo-trial">Try the live demo</a><a class="btn" href="https://github.com/Cibisid/trialbridge" target="_blank" rel="noopener">Source code ↗</a></div>
     <div class="meta">
       <div><span>Role</span><b>Solo project</b></div>
@@ -36,7 +36,7 @@
     <p class="eyebrow">The problem</p>
     <h2>Patients miss trials, and trials miss patients.</h2>
     <p>Clinical trials test new treatments, and many struggle to enroll enough people. Meanwhile, patients who would qualify never hear about them. Matching is still done by hand: a research coordinator reads each trial's rules line by line against a patient's chart.</p>
-    <p>An AI can speed that up, but in healthcare a confident wrong answer is dangerous. If a rule depends on a lab result that was never measured, the honest answer is "unknown", not a guess.</p>
+    <p>AI can accelerate screening, but in a clinical setting a confident wrong answer is dangerous. When a criterion depends on a measurement that was never recorded, the correct answer is UNKNOWN, not an estimate.</p>
   </section>
 
   <section class="block">
@@ -60,7 +60,7 @@
     <h2>Making guessing impossible, not just discouraged.</h2>
     <div class="decisions">
       <article class="decision"><h3>The agent never sees the patient note</h3><p>It has to request each fact through a tool. If the record doesn't contain a value, the tool literally answers "not present", so UNKNOWN is the only verdict left. The model can't fill the gap from a guess.</p><p class="trade"><b>Trade-off:</b> more tool calls per trial, in exchange for decisions you can audit.</p></article>
-      <article class="decision"><h3>Measure both kinds of mistake</h3><p>The evaluation reports two rates together: confident decisions the record couldn't support, and UNKNOWN answers the record could have settled.</p><p class="trade"><b>Trade-off:</b> reporting only the first would be dishonest, because answering UNKNOWN to everything scores perfectly on it and is useless.</p></article>
+      <article class="decision"><h3>Measure both kinds of mistake</h3><p>The evaluation reports two rates together: confident decisions the record couldn't support, and UNKNOWN answers the record could have settled.</p><p class="trade"><b>Trade-off:</b> reporting only the first would be misleading, since a model that answers UNKNOWN to everything would score perfectly on it.</p></article>
       <article class="decision"><h3>A smaller, faster search model</h3><p>The plan was BioBERT. I shipped MiniLM instead: about 5 times faster at close to the same retrieval quality on this data.</p><p class="trade"><b>Trade-off:</b> the embedder is model-agnostic, so BioBERT can be swapped back in.</p></article>
       <article class="decision"><h3>Let the model think before acting</h3><p>With extended thinking turned off, the model sometimes wrote a tool call as plain text, which looks like a finished turn where nothing actually ran. Thinking stays on.</p><p class="trade"><b>Trade-off:</b> slightly slower and more tokens per decision.</p></article>
     </div>
@@ -68,7 +68,7 @@
 
   <section class="block">
     <p class="eyebrow">Results</p>
-    <h2>What's built and verified.</h2>
+    <h2>Verified results.</h2>
     <div class="results">
       <div><b>2,344</b><span>trials ingested from the ClinicalTrials.gov bulk export</span></div>
       <div><b>86</b><span>automated tests, run in CI against live PostgreSQL</span></div>
@@ -82,8 +82,8 @@
   </section>
 
   <section class="block">
-    <p class="eyebrow">What I'd do next</p>
-    <h2>Honest about what's left.</h2>
+    <p class="eyebrow">Roadmap</p>
+    <h2>Planned improvements.</h2>
     <ul class="points next">
       <li><span><b>Real sign-in.</b> The login endpoint is a placeholder today.</span></li>
       <li><span><b>Plain-English explanations</b> for every match. The explainer is written but not yet connected to the match results.</span></li>
@@ -95,7 +95,7 @@
 </main>
 
 <footer class="cta"><div class="wrap">
-  <div class="top"><h2>Want to talk about how I'd bring this to your team?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
+  <div class="top"><h2>Interested in discussing this work?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
   <div class="next"><a href="llm-gateway.html">← LLM Gateway</a><span>Next case study: <a href="job-watcher.html">job-watcher →</a></span></div>
 </div></footer>
 </body>

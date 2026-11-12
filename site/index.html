@@ -447,9 +447,9 @@ dialog{border-radius:16px}
 <main id="top">
 <section class="hero">
   <div class="wrap">
-    <p class="avail"><b></b>Available for AI/ML, backend and data roles</p>
+    <p class="avail"><b></b>Open to AI/ML, backend and data engineering roles</p>
     <h1>Software engineer building reliable AI systems.</h1>
-    <p class="lede">I build AI software that companies can trust. It's tested before it goes live, keeps working when an AI provider goes down, and says "I don't know" instead of making things up. Every project below explains what it does in plain English, and has a live demo you can try.</p>
+    <p class="lede">I design and ship production-grade AI systems: evaluation-gated releases, resilient multi-provider LLM infrastructure, and grounded agents that defer rather than guess. Previously a Software Engineer at Goldman Sachs, with an M.S. in Computer Science from the University of North Florida.</p>
     <div class="row">
       <a class="btn solid" href="#work">View projects</a>
       <a class="btn" href="Cibi_Siddarth_Resume.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6m-3-3 3 3 3-3"/></svg>Resume (PDF)</a>
@@ -468,17 +468,17 @@ dialog{border-radius:16px}
 <section id="live" class="sec">
   <div class="wrap">
     <div class="sec-head">
-      <div><p class="eyebrow">Live from GitHub</p><h2>My agents, right now</h2></div>
-      <p>Each robot is connected to one of my projects. When code changes, that project's automated checks run and its robot gets to work, then celebrates or flags a problem. The scout wakes up on a schedule to scan company career pages. Nothing here is staged.</p>
+      <div><p class="eyebrow">Live system status</p><h2>Project activity, in real time</h2></div>
+      <p>Each panel mirrors a project's CI/CD pipeline on GitHub. When a change is pushed, its test suite runs and the status updates as checks pass or fail. job-watcher reports aggregate results from its most recent scheduled scan.</p>
     </div>
-    <p class="desk-status off" id="desk-status" role="status"><span class="live-dot"></span><span id="desk-status-text">Checking GitHub…</span></p>
+    <p class="desk-status off" id="desk-status" role="status"><span class="live-dot"></span><span id="desk-status-text">Connecting to GitHub…</span></p>
     <div class="agents" style="margin-top:20px">
       <article class="agent" data-agent="gauntlet" data-state="unknown" style="--c:#2E7A82;--c2:#1F5C63;--tint:#D9E8E5">
         <div class="scene" data-glyph="✓"></div>
         <div class="info">
-          <div class="who"><b>Gatekeeper</b><span>GAUNTLET</span></div>
+          <div class="who"><b>Gauntlet</b><span>RELEASE GATE</span></div>
           <span class="state">Checking</span>
-          <p class="doing">Tests every AI update before it can be released.</p>
+          <p class="doing">Evaluation-gated release pipeline for LLM systems.</p>
           <p class="when"></p>
           <a class="run-link" href="https://github.com/Cibisid/gauntlet/actions" target="_blank" rel="noopener">See it on GitHub ↗</a>
         </div>
@@ -486,9 +486,9 @@ dialog{border-radius:16px}
       <article class="agent" data-agent="gateway" data-state="unknown" style="--c:#C29A66;--c2:#97734A;--tint:#F1E8DA">
         <div class="scene" data-glyph="↔"></div>
         <div class="info">
-          <div class="who"><b>Switch</b><span>LLM GATEWAY</span></div>
+          <div class="who"><b>LLM Gateway</b><span>LLM ROUTING</span></div>
           <span class="state">Checking</span>
-          <p class="doing">Keeps apps answering when an AI provider goes down.</p>
+          <p class="doing">Multi-provider routing with automatic failover.</p>
           <p class="when"></p>
           <a class="run-link" href="https://github.com/Cibisid/llm-gateway/actions" target="_blank" rel="noopener">See it on GitHub ↗</a>
         </div>
@@ -496,9 +496,9 @@ dialog{border-radius:16px}
       <article class="agent" data-agent="trial" data-state="unknown" style="--c:#C07A57;--c2:#93553A;--tint:#F3E3D9">
         <div class="scene" data-glyph="+"></div>
         <div class="info">
-          <div class="who"><b>Doc</b><span>TRIALBRIDGE</span></div>
+          <div class="who"><b>TrialBridge</b><span>CLINICAL MATCHING</span></div>
           <span class="state">Checking</span>
-          <p class="doing">Matches patients to clinical trials, and never guesses.</p>
+          <p class="doing">Eligibility screening that never guesses missing data.</p>
           <p class="when"></p>
           <a class="run-link" href="https://github.com/Cibisid/trialbridge/actions" target="_blank" rel="noopener">See it on GitHub ↗</a>
         </div>
@@ -506,9 +506,9 @@ dialog{border-radius:16px}
       <article class="agent" data-agent="scout" data-state="sleep" style="--c:#7B8F63;--c2:#5A6A4C;--tint:#E6EBDD">
         <div class="scene" data-glyph="◎"></div>
         <div class="info">
-          <div class="who"><b>Scout</b><span>JOB-WATCHER</span></div>
-          <span class="state">On a schedule</span>
-          <p class="doing">Wakes up on a 3-hour schedule to scan about 430 company career pages. Private repo, so only totals appear here.</p>
+          <div class="who"><b>job-watcher</b><span>JOB SCANNER</span></div>
+          <span class="state">Scheduled</span>
+          <p class="doing">Scheduled scan of about 430 employer career sites. Private repository; aggregate results only.</p>
           <div class="scout-stats" hidden></div>
           <p class="when"></p>
           <a class="run-link" href="projects/job-watcher.html">How it works →</a>
@@ -519,7 +519,7 @@ dialog{border-radius:16px}
       <h3>Recent activity</h3>
       <ol class="feed" id="feed"><li><i class="idle"></i><span class="what">Loading recent activity…</span><time></time></li></ol>
     </div>
-    <p class="desk-note">Live data comes from GitHub's public API and refreshes every few minutes while this page is open. A snapshot is also rebuilt every hour.</p>
+    <p class="desk-note">Data is pulled from the GitHub API every few minutes while this page is open, and a server-side snapshot is rebuilt hourly.</p>
   </div>
 </section>
 
@@ -527,7 +527,7 @@ dialog{border-radius:16px}
   <div class="wrap">
     <div class="sec-head">
       <div><p class="eyebrow">Selected work</p><h2>Shipped projects</h2></div>
-      <p>Each project is finished and tested. Read what problem it solves, see how it works in three steps, then try it yourself.</p>
+      <p>Production-quality projects with automated test suites, documented design decisions and interactive demos.</p>
     </div>
     <div class="projects">
 
@@ -535,27 +535,26 @@ dialog{border-radius:16px}
         <div class="txt">
           <div class="badges"><span class="badge">01 · FLAGSHIP</span><span class="pill">Shipped</span></div>
           <h3>Gauntlet</h3>
-          <p class="headline">A safety check that stops a bad AI update before customers see it.</p>
-          <p class="desc">Companies keep updating the AI behind their chatbots and assistants. Sometimes an update quietly gives worse answers, gets slower, or costs more, and customers notice before the team does.</p>
+          <p class="headline">An evaluation-gated release platform that keeps regressions in LLM systems out of production.</p>
+          <p class="desc">Prompt, model and guardrail changes can silently degrade answer quality, latency or cost. Gauntlet treats them like code: every change is evaluated against the production version before release and rolled out progressively.</p>
           <p class="how-h">How it works</p>
           <ol class="how">
-            <li>Tests the new AI version on a fixed set of questions and scores accuracy, made-up answers, speed and cost.</li>
-            <li>If any score misses its target, the update is blocked.</li>
-            <li>If it passes, it goes to 1% of users first, then 10%, 50% and everyone. If errors spike, it switches everyone back to the old version automatically.</li>
+            <li>Evaluates the candidate against production on a held-out test set, measuring accuracy, groundedness, latency and cost.</li>
+            <li>Blocks the release when any metric misses its threshold, using statistical non-inferiority testing rather than a fixed cutoff.</li>
+            <li>Promotes passing changes through a 1% → 10% → 50% → 100% canary rollout, with automatic rollback when error budgets are exceeded.</li>
           </ol>
-          <p class="short"><b>In short:</b> a driving test plus a probation period for AI models.</p>
-          <div class="stats"><div><b>137</b><span>automated tests</span></div><div><b>98%</b><span>of code tested</span></div><div><b>Auto</b><span>undo on errors</span></div></div>
-          <p class="stack">Built with Python · LLM evaluations · pytest · staged rollouts</p>
+          <div class="stats"><div><b>137</b><span>automated tests</span></div><div><b>98%</b><span>test coverage</span></div><div><b>Auto</b><span>rollback</span></div></div>
+          <p class="stack">Stack: Python · FastAPI · pytest · Prometheus · Kubernetes · Terraform</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-gauntlet">Open live demo</button><a class="btn sm" href="projects/gauntlet.html">Read case study</a><a class="btn sm" href="https://github.com/Cibisid/gauntlet" target="_blank" rel="noopener">Source code ↗</a></div>
         </div>
         <div class="visual" aria-hidden="true">
-          <p class="cap">What a release check looks like</p>
+          <p class="cap">Release evaluation</p>
           <div class="shot">
             <div class="shot-bar"><i></i><i></i><i></i><span class="u">gauntlet · release v2.4 vs v2.3</span><span class="pill">Released</span></div>
             <div class="shot-body">
               <div class="line"><span>Eval pass rate</span><span class="m">97.0% ≥ 95%</span><span class="ok">PASS</span></div>
-              <div class="line"><span>Made-up answers</span><span class="m">1.0% ≤ 2%</span><span class="ok">PASS</span></div>
-              <div class="line"><span>Response time</span><span class="m">900 ms ≤ 1,200</span><span class="ok">PASS</span></div>
+              <div class="line"><span>Hallucination rate</span><span class="m">1.0% ≤ 2%</span><span class="ok">PASS</span></div>
+              <div class="line"><span>Latency (p95)</span><span class="m">900 ms ≤ 1,200</span><span class="ok">PASS</span></div>
               <div class="line"><span>Cost per request</span><span class="m">$0.0060 ≤ $0.01</span><span class="ok">PASS</span></div>
               <div class="stages"><span>1%</span><span>10%</span><span>50%</span><span>100%</span></div>
             </div>
@@ -567,21 +566,20 @@ dialog{border-radius:16px}
         <div class="txt">
           <div class="badges"><span class="badge">02 · AI INFRASTRUCTURE</span><span class="pill">Shipped</span></div>
           <h3>LLM Gateway</h3>
-          <p class="headline">One connection to many AI providers, so an app keeps working when one goes down.</p>
-          <p class="desc">Most apps connect to a single AI provider. When that provider has an outage or slows down, the app breaks for every user. The gateway sits in the middle and can talk to several providers.</p>
+          <p class="headline">An OpenAI-compatible gateway that routes requests across LLM providers with automatic failover.</p>
+          <p class="desc">Applications coupled to a single model provider inherit its outages, latency spikes and pricing changes. The gateway decouples them behind one API and centralizes authentication, rate limiting and cost tracking.</p>
           <p class="how-h">How it works</p>
           <ol class="how">
-            <li>The app sends every AI request to the gateway, in the same format it already uses, so nothing needs rewriting.</li>
-            <li>The gateway picks a provider based on what the app asked for: the smartest, the fastest, or the cheapest.</li>
-            <li>If that provider is down, it automatically tries the next one, so the user still gets an answer. It also gives AI agents a shared set of 11 tools and lets one agent hand work to another.</li>
+            <li>Accepts standard OpenAI-format requests, so existing SDKs work without code changes.</li>
+            <li>Resolves a model alias (quality, speed or cost) to a ranked list of providers.</li>
+            <li>Fails over to the next provider on error and records per-request cost. Agents access 11 tools through an MCP server and can delegate work to a second agent over A2A.</li>
           </ol>
-          <p class="short"><b>In short:</b> like a phone that switches to another cell network when yours drops.</p>
-          <div class="stats"><div><b>167</b><span>automated tests</span></div><div><b>11</b><span>shared agent tools</span></div><div><b>23</b><span>quality checks</span></div></div>
-          <p class="stack">Built with Python · FastAPI · MCP · A2A · Docker</p>
+          <div class="stats"><div><b>167</b><span>automated tests</span></div><div><b>11</b><span>MCP tools</span></div><div><b>23</b><span>evaluation cases</span></div></div>
+          <p class="stack">Stack: Python · FastAPI · MCP · A2A · Docker</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-gateway">Open live demo</button><a class="btn sm" href="projects/llm-gateway.html">Read case study</a><a class="btn sm" href="https://github.com/Cibisid/llm-gateway" target="_blank" rel="noopener">Source code ↗</a></div>
         </div>
         <div class="visual" aria-hidden="true">
-          <p class="cap">What the app sees during an outage</p>
+          <p class="cap">Provider failover</p>
           <div class="shot">
             <div class="shot-bar"><i></i><i></i><i></i><span class="u">POST /v1/chat/completions · model: smart</span><span class="pill">200 · 452 ms</span></div>
             <div class="shot-body">
@@ -602,21 +600,20 @@ dialog{border-radius:16px}
         <div class="txt">
           <div class="badges"><span class="badge">03 · HEALTHCARE AI</span><span class="pill">Shipped</span></div>
           <h3>TrialBridge</h3>
-          <p class="headline">Finds clinical trials a patient may qualify for, and never guesses.</p>
-          <p class="desc">Clinical trials test new treatments, and each one has a long list of rules about age, diagnosis, lab results and more. Checking one patient against thousands of trials by hand takes hours.</p>
+          <p class="headline">Clinical-trial matching with an eligibility agent that returns UNKNOWN rather than guessing.</p>
+          <p class="desc">Screening a patient against trial eligibility criteria is slow and manual, and in a clinical setting a confident wrong answer is worse than no answer.</p>
           <p class="how-h">How it works</p>
           <ol class="how">
-            <li>Searches 2,344 real trials from ClinicalTrials.gov for ones related to the patient's condition.</li>
-            <li>An AI assistant reads the patient's record and checks each trial's rules one by one.</li>
-            <li>Every rule comes back as met, not met, or UNKNOWN when the record is missing that information. The assistant is not allowed to guess.</li>
+            <li>Retrieves candidate trials from 2,344 ClinicalTrials.gov records with semantic vector search.</li>
+            <li>Applies structured eligibility rules and ranks trials by a composite score.</li>
+            <li>A Claude agent on Amazon Bedrock evaluates each criterion through tool calls, returning MET, NOT MET or UNKNOWN with supporting evidence.</li>
           </ol>
-          <p class="short"><b>In short:</b> in healthcare, "we need one more lab result" is far safer than a confident wrong answer.</p>
-          <div class="stats"><div><b>2,344</b><span>real trials searched</span></div><div><b>86</b><span>automated tests</span></div><div><b>0</b><span>guesses allowed</span></div></div>
-          <p class="stack">Built with Python · PostgreSQL · pgvector · Claude on Amazon Bedrock</p>
+          <div class="stats"><div><b>2,344</b><span>trials indexed</span></div><div><b>86</b><span>automated tests</span></div><div><b>0</b><span>unsupported guesses</span></div></div>
+          <p class="stack">Stack: Python · FastAPI · PostgreSQL · pgvector · Amazon Bedrock</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-trial">Open live demo</button><a class="btn sm" href="projects/trialbridge.html">Read case study</a><a class="btn sm" href="https://github.com/Cibisid/trialbridge" target="_blank" rel="noopener">Source code ↗</a></div>
         </div>
         <div class="visual" aria-hidden="true">
-          <p class="cap">What a patient match looks like</p>
+          <p class="cap">Eligibility assessment</p>
           <div class="shot">
             <div class="shot-bar"><i></i><i></i><i></i><span class="u">trialbridge · patient demo-001</span><span class="pill" style="color:var(--warn);background:#F5EBDC">1 needs data</span></div>
             <div class="shot-body">
@@ -632,21 +629,20 @@ dialog{border-radius:16px}
         <div class="txt">
           <div class="badges"><span class="badge">04 · AUTOMATION</span><span class="pill">Shipped</span></div>
           <h3>job-watcher</h3>
-          <p class="headline">An automatic job hunter that checks hundreds of company career pages for you.</p>
-          <p class="desc">New jobs are posted on hundreds of separate company websites, and the big job boards are cluttered with staffing agencies and repeat listings. Keeping up by hand means refreshing tabs all day.</p>
+          <p class="headline">A scheduled pipeline that monitors about 430 employer career sites and ranks new postings by fit.</p>
+          <p class="desc">Relevant openings are spread across hundreds of employer sites, and aggregators duplicate them alongside staffing-agency listings.</p>
           <p class="how-h">How it works</p>
           <ol class="how">
-            <li>Several times a day, on a 3-hour schedule, it visits about 430 company job boards and collects every new posting.</li>
-            <li>It throws out staffing agencies and roles that won't sponsor.</li>
-            <li>It scores each remaining job from 1 to 5 for how well it fits, and shows the best ones on a dashboard.</li>
+            <li>Runs on a GitHub Actions schedule and queries employer applicant-tracking systems directly: Greenhouse, Lever, Ashby and Workday.</li>
+            <li>Filters out staffing agencies and roles that exclude visa sponsorship.</li>
+            <li>Scores each remaining posting for fit and publishes a ranked dashboard with alerts for new matches.</li>
           </ol>
-          <p class="short"><b>In short:</b> it does the daily job-board refreshing, then hands you a shortlist.</p>
-          <div class="stats"><div><b>~430</b><span>job boards checked</span></div><div><b>~120k</b><span>postings per scan</span></div><div><b>~3 / day</b><span>scans actually run</span></div></div>
-          <p class="stack">Built with Python · GitHub Actions · job-board APIs</p>
+          <div class="stats"><div><b>~430</b><span>career sites monitored</span></div><div><b>~120k</b><span>postings per scan</span></div><div><b>~3 / day</b><span>scans completed</span></div></div>
+          <p class="stack">Stack: Python · GitHub Actions · Greenhouse, Lever and Ashby APIs</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-jobs">Open live demo</button><a class="btn sm" href="projects/job-watcher.html">Read case study</a><span class="private">Private repo</span></div>
         </div>
         <div class="visual" aria-hidden="true">
-          <p class="cap">What one scan returns</p>
+          <p class="cap">Ranked results</p>
           <div class="shot">
             <div class="shot-bar"><i></i><i></i><i></i><span class="u">job-watcher · latest run</span><span class="pill">3 shortlisted</span></div>
             <div class="shot-body">
@@ -663,21 +659,20 @@ dialog{border-radius:16px}
         <div class="txt">
           <div class="badges"><span class="badge">05 · DATA SCIENCE</span><span class="pill award">Runner-up · AI for Good 2025</span></div>
           <h3>Housing Affordability</h3>
-          <p class="headline">How much do you need to earn to afford a home? Our team built models to answer it.</p>
-          <p class="desc">Home prices and interest rates keep rising, but most families don't know what income a house really takes. For the State of Florida's AI for Good Hackathon, our team built machine learning models on this question.</p>
+          <p class="headline">Machine-learning models of housing affordability, built for the State of Florida's AI for Good Hackathon.</p>
+          <p class="desc">Our team modeled the income required to buy a home, the resulting monthly payment, and the share of households able to afford it. The project placed runner-up statewide.</p>
           <p class="how-h">How it works</p>
           <ol class="how">
-            <li>Takes a home's price, down payment, interest rate, taxes and insurance.</li>
-            <li>Works out the true monthly payment.</li>
-            <li>Calculates the yearly income needed, and estimates how many households can afford it.</li>
+            <li>Takes purchase price, down payment, interest rate, property tax and insurance.</li>
+            <li>Computes the full monthly housing payment.</li>
+            <li>Derives the required annual income and estimates the share of households that qualify.</li>
           </ol>
-          <p class="short"><b>In short:</b> turns "can I afford this house?" into a clear number. We placed runner-up statewide.</p>
           <div class="stats"><div><b>2nd</b><span>place statewide</span></div><div><b>ML</b><span>prediction models</span></div><div><b>Team</b><span>project</span></div></div>
-          <p class="stack">Built with Python · pandas · scikit-learn · XGBoost</p>
+          <p class="stack">Stack: Python · pandas · scikit-learn · XGBoost</p>
           <div class="row"><button class="btn solid sm" type="button" data-open="dlg-house">Open the calculator</button></div>
         </div>
         <div class="visual" aria-hidden="true">
-          <p class="cap">What the calculator shows</p>
+          <p class="cap">Affordability model</p>
           <div class="shot">
             <div class="shot-bar"><i></i><i></i><i></i><span class="u">affordability · $350,000 home</span></div>
             <div class="shot-body">
@@ -700,7 +695,7 @@ dialog{border-radius:16px}
 
 <section id="experience" class="sec">
   <div class="wrap">
-    <div class="sec-head"><div><p class="eyebrow">Experience</p><h2>Where I've worked and studied</h2></div></div>
+    <div class="sec-head"><div><p class="eyebrow">Experience</p><h2>Experience and education</h2></div></div>
     <div class="exp">
       <article class="job">
         <header><h3>Goldman Sachs</h3><span class="when">Nov 2022 – Jul 2024 · Bengaluru</span></header>
@@ -708,8 +703,8 @@ dialog{border-radius:16px}
         <ul>
           <li>Worked on the team that moved services and data flows from company servers to AWS.</li>
           <li>Built Python backend services, RAG and semantic search, and evaluation for LLM outputs.</li>
-          <li>Worked on Airflow and Spark data pipelines running on AWS.</li>
-          <li>Supported student hackathons across India: AWS credits and permissions, usage monitoring, access, load and latency.</li>
+          <li>Built and maintained Airflow and Spark data pipelines on AWS.</li>
+          <li>Supported nationwide student hackathons: provisioned AWS credits and IAM permissions, and monitored usage, access, load and latency.</li>
         </ul>
         <div class="chips"><span>Python</span><span>AWS</span><span>RAG</span><span>Semantic search</span><span>Airflow</span><span>Spark</span></div>
       </article>
@@ -727,8 +722,8 @@ dialog{border-radius:16px}
   <div class="wrap about">
     <div class="copy">
       <p class="eyebrow">About</p>
-      <h2>Anyone can make an AI demo work once. I build the version that keeps working with real users.</h2>
-      <p>I studied health informatics, worked on cloud migration and LLM tooling at Goldman Sachs, and finished an M.S. in data science at UNF. I care about evaluations, failure handling and clear numbers, because that's what makes an AI system trustworthy. Outside of code I help out at a family-run Indian restaurant, which is good training for incident response.</p>
+      <h2>I focus on the gap between an AI prototype and a system people can rely on.</h2>
+      <p>My background spans health informatics, cloud migration and LLM tooling at Goldman Sachs, and a master's in data science at the University of North Florida. I prioritize rigorous evaluation, explicit failure handling and measurable results, because they are what make AI systems dependable in production.</p>
     </div>
     <div class="skills">
       <div><h3>AI and ML</h3><div class="chips"><span>RAG</span><span>Semantic search</span><span>Embeddings</span><span>LLM evaluation</span><span>Agents and tool calling</span><span>MCP</span><span>pgvector</span><span>XGBoost</span></div></div>
@@ -744,8 +739,8 @@ dialog{border-radius:16px}
     <div class="grid">
       <div>
         <p class="eyebrow">Contact</p>
-        <h2>Let's build something reliable together.</h2>
-        <p class="lead">I'm looking for AI/ML, backend and data engineering roles in the US and I'm open to relocating. Email is the quickest way to reach me.</p>
+        <h2>Let's work together.</h2>
+        <p class="lead">I'm open to AI/ML, backend and data engineering roles in the United States and willing to relocate. The best way to reach me is by email.</p>
       </div>
       <div class="reach">
         <div class="mail"><a id="mail" href="mailto:siddarth.cibi26@gmail.com">siddarth.cibi26@gmail.com</a><button class="copy-btn" id="copy" type="button">Copy</button></div>
@@ -760,11 +755,11 @@ dialog{border-radius:16px}
 <dialog id="dlg-gauntlet" aria-labelledby="h-g">
   <div class="dlg-head"><h3 id="h-g">Gauntlet</h3><span class="chip idle" id="g-state">Ready</span><button class="x" type="button" data-close aria-label="Close">×</button></div>
   <div class="demo">
-    <p class="intro">Set how release v2.4 scored, then run the release. Turn on the problem switch to watch an automatic rollback.</p>
+    <p class="intro">Set the evaluation results for release v2.4, then run the release. Enable the simulated regression to see an automatic rollback.</p>
     <div class="ctrls">
       <div class="field"><label for="g-pass">Eval pass rate <output id="o-pass"></output></label><input id="g-pass" type="range" min="80" max="100" step="0.5" value="97"></div>
-      <div class="field"><label for="g-hall">Made-up answers <output id="o-hall"></output></label><input id="g-hall" type="range" min="0" max="8" step="0.5" value="1"></div>
-      <div class="field"><label for="g-p95">Response time <output id="o-p95"></output></label><input id="g-p95" type="range" min="400" max="2400" step="50" value="900"></div>
+      <div class="field"><label for="g-hall">Hallucination rate <output id="o-hall"></output></label><input id="g-hall" type="range" min="0" max="8" step="0.5" value="1"></div>
+      <div class="field"><label for="g-p95">Latency (p95) <output id="o-p95"></output></label><input id="g-p95" type="range" min="400" max="2400" step="50" value="900"></div>
       <div class="field"><label for="g-cost">Cost per request <output id="o-cost"></output></label><input id="g-cost" type="range" min="2" max="20" step="0.5" value="6"></div>
     </div>
     <ul class="gates" id="g-gates" aria-live="polite"></ul>
@@ -779,8 +774,8 @@ dialog{border-radius:16px}
 <dialog id="dlg-gateway" aria-labelledby="h-gw">
   <div class="dlg-head"><h3 id="h-gw">LLM Gateway</h3><span class="chip idle" id="gw-state">Idle</span><button class="x" type="button" data-close aria-label="Close">×</button></div>
   <div class="demo">
-    <p class="intro">Choose what matters most (smartest, fastest or cheapest), switch a provider off to fake an outage, then send a message. Watch the gateway move to the backup.</p>
-    <div class="field"><span class="lbl">What matters most</span><div class="seg" id="gw-alias" role="group" aria-label="Model alias"><button type="button" data-a="smart" aria-pressed="true">smart</button><button type="button" data-a="fast" aria-pressed="false">fast</button><button type="button" data-a="cheap" aria-pressed="false">cheap</button></div></div>
+    <p class="intro">Select a routing priority, take a provider offline to simulate an outage, and send a request to observe failover.</p>
+    <div class="field"><span class="lbl">Routing priority</span><div class="seg" id="gw-alias" role="group" aria-label="Model alias"><button type="button" data-a="smart" aria-pressed="true">smart</button><button type="button" data-a="fast" aria-pressed="false">fast</button><button type="button" data-a="cheap" aria-pressed="false">cheap</button></div></div>
     <div class="field"><span class="lbl">Provider health <small>Uncheck one to take it offline</small></span><div class="toggles" id="gw-health"><label><input type="checkbox" data-p="primary" checked> primary</label><label><input type="checkbox" data-p="secondary" checked> secondary</label><label><input type="checkbox" data-p="local" checked> local</label></div></div>
     <div class="field"><label for="gw-prompt">Message</label><input id="gw-prompt" type="text" value="Summarize this support ticket in one line."></div>
     <div class="row"><button class="btn solid sm" id="gw-send" type="button">Send request</button><span class="note" id="gw-hint">Try taking "primary" offline, then send.</span></div>
@@ -793,7 +788,7 @@ dialog{border-radius:16px}
 <dialog id="dlg-trial" aria-labelledby="h-tb">
   <div class="dlg-head"><h3 id="h-tb">TrialBridge</h3><span class="chip idle" id="tb-state"></span><button class="x" type="button" data-close aria-label="Close">×</button></div>
   <div class="demo">
-    <p class="intro">Edit the patient. Trials re-rank instantly, and any rule that needs missing data shows UNKNOWN instead of a guess.</p>
+    <p class="intro">Edit the patient record. Trials re-rank in real time, and any criterion that depends on missing data is marked UNKNOWN.</p>
     <div class="ctrls">
       <div class="field"><label for="tb-cond">Condition</label><select id="tb-cond"><option value="t2d">Type 2 diabetes</option><option value="bc">Breast cancer</option><option value="asthma">Asthma</option></select></div>
       <div class="field"><label for="tb-age">Age</label><input id="tb-age" type="number" min="0" max="110" value="54"></div>
@@ -810,7 +805,7 @@ dialog{border-radius:16px}
 <dialog id="dlg-jobs" aria-labelledby="h-jw">
   <div class="dlg-head"><h3 id="h-jw">job-watcher</h3><span class="chip good" id="jw-state"></span><button class="x" type="button" data-close aria-label="Close">×</button></div>
   <div class="demo">
-    <p class="intro">A sample run. Change the filters and minimum fit score to see what makes the shortlist.</p>
+    <p class="intro">Sample results. Adjust the filters and minimum fit score to refine the shortlist.</p>
     <div class="ctrls">
       <label class="check"><input type="checkbox" id="jw-agency" checked> Hide staffing agencies</label>
       <label class="check"><input type="checkbox" id="jw-spons" checked> Hide roles with no sponsorship</label>
@@ -825,7 +820,7 @@ dialog{border-radius:16px}
 <dialog id="dlg-house" aria-labelledby="h-hs">
   <div class="dlg-head"><h3 id="h-hs">Housing Affordability</h3><button class="x" type="button" data-close aria-label="Close">×</button></div>
   <div class="demo">
-    <p class="intro">The core affordability math behind the hackathon models. Move the sliders to see the income a home needs.</p>
+    <p class="intro">The core affordability calculation behind the hackathon models.</p>
     <div class="ctrls">
       <div class="field"><label for="h-price">Home price <output id="o-price"></output></label><input id="h-price" type="range" min="100000" max="900000" step="5000" value="350000"></div>
       <div class="field"><label for="h-down">Down payment <output id="o-down"></output></label><input id="h-down" type="range" min="0" max="40" step="1" value="10"></div>
@@ -860,8 +855,8 @@ addEventListener('hashchange', fromHash); fromHash();
 /* Gauntlet */
 const G = [
   { id: 'pass', name: 'Eval pass rate', fmt: v => v.toFixed(1) + '%', rule: 'at least 95%', ok: v => v >= 95 },
-  { id: 'hall', name: 'Made-up answers', fmt: v => v.toFixed(1) + '%', rule: 'at most 2%', ok: v => v <= 2 },
-  { id: 'p95', name: 'Response time', fmt: v => v.toLocaleString('en-US') + ' ms', rule: 'at most 1,200 ms', ok: v => v <= 1200 },
+  { id: 'hall', name: 'Hallucination rate', fmt: v => v.toFixed(1) + '%', rule: 'at most 2%', ok: v => v <= 2 },
+  { id: 'p95', name: 'Latency (p95)', fmt: v => v.toLocaleString('en-US') + ' ms', rule: 'at most 1,200 ms', ok: v => v <= 1200 },
   { id: 'cost', name: 'Cost per request', fmt: v => '$' + (v / 1000).toFixed(4), rule: 'at most $0.0100', ok: v => v <= 10 },
 ];
 const gVal = g => parseFloat($('#g-' + g.id).value);
@@ -1112,15 +1107,15 @@ function paintAgent(key) {
   let state, label, doing, when;
   const msg = `<q>${esc(r.message || 'latest change')}</q>`;
   if (RUNNING.includes(r.status)) {
-    state = 'working'; label = 'Working';
-    doing = `Checking a new change: ${msg}`; when = `Started ${ago(r.started || r.created)}`;
+    state = 'working'; label = 'Running checks';
+    doing = `Running the test suite on ${msg}`; when = `Started ${ago(r.started || r.created)}`;
   } else if (FAILED.includes(r.conclusion)) {
-    state = 'worried'; label = 'Needs attention';
-    doing = `A check failed on the latest change: ${msg}`; when = `Finished ${ago(r.updated)}`;
+    state = 'worried'; label = 'Checks failing';
+    doing = `Checks failed on ${msg}`; when = `Finished ${ago(r.updated)}`;
   } else {
     const fresh = Date.now() - Date.parse(r.updated) < 864e5;
-    state = fresh ? 'happy' : 'calm'; label = fresh ? 'Just passed' : 'All checks passing';
-    doing = `Every check passed on ${msg}`; when = `Finished ${ago(r.updated)}`;
+    state = fresh ? 'happy' : 'calm'; label = fresh ? 'Checks passed' : 'All checks passing';
+    doing = `All checks passed on ${msg}`; when = `Finished ${ago(r.updated)}`;
   }
   card.dataset.state = state;
   $('.state', card).textContent = label;
@@ -1135,14 +1130,14 @@ function paintScout() {
   const last = latest(s.scans);
   const scanning = last && RUNNING.includes(last.status);
   card.dataset.state = scanning ? 'working' : 'sleep';
-  $('.state', card).textContent = scanning ? 'Scanning now' : 'Resting between scans';
+  $('.state', card).textContent = scanning ? 'Scan in progress' : 'Idle until next scan';
   $('.doing', card).textContent = scanning
-    ? `Reading about ${s.boards_total} company career pages right now.`
-    : `Last scan read ${Number(s.postings_read).toLocaleString('en-US')} postings from ${s.boards_ok} of ${s.boards_total} company career pages.`;
+    ? `Scanning ${s.boards_total} employer career sites.`
+    : `Last scan processed ${Number(s.postings_read).toLocaleString('en-US')} postings from ${s.boards_ok} of ${s.boards_total} employer career sites.`;
   const st = $('.scout-stats', card);
-  st.innerHTML = `<div><b>${Number(s.open_roles).toLocaleString('en-US')}</b><span>roles that fit</span></div><div><b>${s.companies}</b><span>companies</span></div><div><b>${s.new_24h}</b><span>new today</span></div><div><b>${Number(s.screened_out).toLocaleString('en-US')}</b><span>filtered out</span></div>`;
+  st.innerHTML = `<div><b>${Number(s.open_roles).toLocaleString('en-US')}</b><span>matching roles</span></div><div><b>${s.companies}</b><span>companies</span></div><div><b>${s.new_24h}</b><span>new in 24 h</span></div><div><b>${Number(s.screened_out).toLocaleString('en-US')}</b><span>filtered out</span></div>`;
   st.hidden = false;
-  $('.when', card).textContent = scanning ? `Started ${ago(last.started || last.created)}` : `Last scan finished ${ago((last && last.updated) || s.updated)}`;
+  $('.when', card).textContent = scanning ? `Started ${ago(last.started || last.created)}` : `Last scan completed ${ago((last && last.updated) || s.updated)}`;
 }
 
 function paintFeed() {
@@ -1158,9 +1153,9 @@ function paintFeed() {
     const running = RUNNING.includes(r.status), bad = FAILED.includes(r.conclusion);
     const dot = running ? 'run' : bad ? 'bad' : (r.conclusion === 'success' ? '' : 'idle');
     let verb;
-    if (scan) verb = running ? 'is scanning career pages' : 'finished a scan';
+    if (scan) verb = running ? 'scan in progress' : 'completed a scan';
     else if (who === SITE.project) verb = running ? 'is deploying' : bad ? 'failed to deploy' : 'deployed';
-    else verb = running ? 'is checking' : bad ? 'failed a check on' : 'passed checks on';
+    else verb = running ? 'is running checks on' : bad ? 'failed checks on' : 'passed checks on';
     const msg = !scan && r.message ? ` <a href="${esc(r.url)}" target="_blank" rel="noopener">“${esc(r.message)}”</a>` : '';
     const t = r.updated || r.created;
     return `<li><i class="${dot}"></i><span class="what"><b>${esc(who)}</b> ${verb}${msg}</span><time datetime="${esc(t)}">${ago(t)}</time></li>`;
@@ -1170,11 +1165,11 @@ function paintFeed() {
 function paintStatus() {
   const el = $('#desk-status-text');
   $('#desk-status').classList.toggle('off', !live);
-  if (live) el.innerHTML = `<b>Live</b> · checked ${ago(new Date(liveAt).toISOString())}`;
-  else if (snapshot && limited) el.innerHTML = `Showing the snapshot from ${ago(snapshot.generated)}. GitHub's hourly limit for your network was reached.`;
-  else if (snapshot && failed) el.innerHTML = `Showing the snapshot from ${ago(snapshot.generated)}. GitHub didn't answer just now.`;
-  else if (snapshot) el.innerHTML = `Snapshot from ${ago(snapshot.generated)} · checking for newer activity…`;
-  else if (failed || limited) el.textContent = "Couldn't reach GitHub right now. Try again in a few minutes.";
+  if (live) el.innerHTML = `<b>Live</b> · updated ${ago(new Date(liveAt).toISOString())}`;
+  else if (snapshot && limited) el.innerHTML = `GitHub API rate limit reached. Showing the snapshot from ${ago(snapshot.generated)}.`;
+  else if (snapshot && failed) el.innerHTML = `GitHub is unavailable. Showing the snapshot from ${ago(snapshot.generated)}.`;
+  else if (snapshot) el.innerHTML = `Snapshot from ${ago(snapshot.generated)} · refreshing…`;
+  else if (failed || limited) el.textContent = "GitHub is unavailable. Please try again shortly.";
 }
 
 function paint() { Object.keys(AGENTS).forEach(paintAgent); paintScout(); paintFeed(); paintStatus(); }

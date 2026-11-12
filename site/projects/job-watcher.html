@@ -22,7 +22,7 @@
   <section class="head">
     <p class="eyebrow">Case study · Automation</p>
     <h1>job-watcher</h1>
-    <p class="plain">An automatic job hunter. Several times a day it checks hundreds of company career pages, throws out the noise, and hands back a ranked shortlist.</p>
+    <p class="plain">A scheduled pipeline that monitors about 430 employer career sites, filters out noise and ranks new postings by fit.</p>
     <div class="row"><a class="btn solid" href="../#demo-jobs">Try the live demo</a><span style="font-size:14.5px; color:var(--muted)">Private repository. Happy to walk through the code on a call.</span></div>
     <div class="meta">
       <div><span>Role</span><b>Solo project</b></div>
@@ -34,14 +34,14 @@
 
   <section class="block">
     <p class="eyebrow">The problem</p>
-    <h2>The best roles are scattered and disappear fast.</h2>
-    <p>New jobs are posted on hundreds of separate company career sites. The big job boards collect them late, repeat them, and mix in staffing agencies advertising the same role many times. Keeping up by hand means refreshing tabs all day and still missing postings.</p>
-    <p>job-watcher goes straight to the source, on a schedule, and only surfaces what's worth reading.</p>
+    <h2>Relevant roles are fragmented and short-lived.</h2>
+    <p>Openings are published across hundreds of separate employer career sites. Large job boards index them late, duplicate them, and mix in staffing agencies advertising the same role repeatedly, so tracking them manually is slow and incomplete.</p>
+    <p>job-watcher queries employers' applicant-tracking systems directly, on a schedule, and surfaces only the postings that meet defined criteria.</p>
   </section>
 
   <section class="block">
     <p class="eyebrow">How it works</p>
-    <h2>The whole system runs on GitHub, with no servers.</h2>
+    <h2>A serverless pipeline built entirely on GitHub.</h2>
     <div class="diagram" role="img" aria-label="job-watcher pipeline: a GitHub Actions schedule triggers a scan of about 430 career boards, postings are screened and scored, and results are published as a dashboard and email alerts.">
       <div class="flow with-arrows" style="--cols:minmax(0,1fr) auto minmax(0,1.2fr) auto minmax(0,1.2fr) auto minmax(0,1fr)">
         <div class="node"><b>1. Scheduled run</b><span>GitHub Actions is set to start a scan every 3 hours. In practice GitHub runs about 3 a day, because it delays or skips scheduled jobs when busy. A weekly job looks for new company boards.</span></div>
@@ -57,7 +57,7 @@
 
   <section class="block">
     <p class="eyebrow">Key decisions</p>
-    <h2>Simple, free and reliable to run.</h2>
+    <h2>Designed for zero infrastructure cost.</h2>
     <div class="decisions">
       <article class="decision"><h3>Go to the source</h3><p>Only company career boards, never aggregators. That removes most of the noise before any filtering happens: no reposts and far fewer staffing-agency listings.</p><p class="trade"><b>Trade-off:</b> each hiring system has its own format, so there's a reader for each one.</p></article>
       <article class="decision"><h3>GitHub is the whole platform</h3><p>Actions is the scheduler, JSON files in the repo are the database, the README is the dashboard, and issues are the email alerts. It costs nothing and there's nothing to keep running.</p><p class="trade"><b>Trade-off:</b> history lives in commits, which suits this scale but wouldn't suit millions of rows.</p></article>
@@ -68,7 +68,7 @@
 
   <section class="block">
     <p class="eyebrow">Results</p>
-    <h2>What it handles.</h2>
+    <h2>Scale.</h2>
     <div class="results">
       <div><b>~430</b><span>company career boards checked each run</span></div>
       <div><b>~120k</b><span>postings read per run</span></div>
@@ -81,8 +81,8 @@
   </section>
 
   <section class="block">
-    <p class="eyebrow">What I'd do next</p>
-    <h2>Honest about what's left.</h2>
+    <p class="eyebrow">Roadmap</p>
+    <h2>Planned improvements.</h2>
     <ul class="points next">
       <li><span><b>Run on a reliable scheduler.</b> GitHub skips some scheduled runs, so only about 3 of the 8 planned scans a day happen.</span></li>
       <li><span><b>Add automated tests</b> for each board reader and the screening rules.</span></li>
@@ -93,7 +93,7 @@
 </main>
 
 <footer class="cta"><div class="wrap">
-  <div class="top"><h2>Want to talk about how I'd bring this to your team?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
+  <div class="top"><h2>Interested in discussing this work?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
   <div class="next"><a href="trialbridge.html">← TrialBridge</a><span><a href="../">Back to all projects →</a></span></div>
 </div></footer>
 </body>

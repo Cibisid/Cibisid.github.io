@@ -22,7 +22,7 @@
   <section class="head">
     <p class="eyebrow">Case study · AI infrastructure</p>
     <h1>LLM Gateway</h1>
-    <p class="plain">One connection to many AI providers, so an app keeps answering when one of them goes down. It also gives AI agents a shared toolbox and checks its own answer quality on every change.</p>
+    <p class="plain">An OpenAI-compatible gateway that routes across LLM providers with automatic failover, exposes agent tools over MCP, and evaluates answer quality in CI.</p>
     <div class="row"><a class="btn solid" href="../#demo-gateway">Try the live demo</a><a class="btn" href="https://github.com/Cibisid/llm-gateway" target="_blank" rel="noopener">Source code ↗</a></div>
     <div class="meta">
       <div><span>Role</span><b>Solo project</b></div>
@@ -34,9 +34,9 @@
 
   <section class="block">
     <p class="eyebrow">The problem</p>
-    <h2>Apps that depend on one AI provider break when it does.</h2>
-    <p>Most AI features are wired straight to a single provider. When that provider has an outage, gets slow, or changes its prices, every user feels it, and the team has to rewrite code to switch. Each team also rebuilds the same plumbing: access control, rate limits, cost tracking and tools for agents.</p>
-    <p>The gateway is a single service in the middle. Apps talk to it in the format they already use, and it handles the rest.</p>
+    <h2>Single-provider applications inherit every provider outage.</h2>
+    <p>Most AI features are coupled directly to one model provider. Outages, latency spikes and price changes reach every user, and switching providers requires code changes. Each team also rebuilds the same infrastructure: access control, rate limiting, cost tracking and agent tooling.</p>
+    <p>The gateway sits between applications and providers, accepts the request format applications already use, and handles routing, failover and policy centrally.</p>
   </section>
 
   <section class="block">
@@ -63,10 +63,10 @@
 
   <section class="block">
     <p class="eyebrow">Key decisions</p>
-    <h2>The choices behind it.</h2>
+    <h2>Design decisions.</h2>
     <div class="decisions">
       <article class="decision"><h3>No agent framework</h3><p>Every model call goes through my router, so fallback and cost tracking always apply. A framework would bring its own model clients and quietly skip both.</p><p class="trade"><b>Trade-off:</b> I'd revisit this only for multi-agent conversations or long-running workflow state.</p></article>
-      <article class="decision"><h3>Fail closed</h3><p>If no API keys are configured, the service returns an error for every request instead of running open.</p><p class="trade"><b>Trade-off:</b> a misconfigured deploy is down rather than exposed, which is the right way round.</p></article>
+      <article class="decision"><h3>Fail closed</h3><p>If no API keys are configured, the service returns an error for every request instead of running open.</p><p class="trade"><b>Trade-off:</b> a misconfigured deployment fails safely instead of running unprotected.</p></article>
       <article class="decision"><h3>Unknown cost is never shown as free</h3><p>Only verified prices are recorded. Models without one report no cost and sort last when ranking by price.</p><p class="trade"><b>Trade-off:</b> some providers show "unknown" cost until their prices are verified.</p></article>
       <article class="decision"><h3>Tools explain their own numbers</h3><p>River levels are relative to a station marker, not water depth; exchange rates are daily reference rates. Those caveats live in the tool descriptions so the model can't misreport them.</p><p class="trade"><b>Trade-off:</b> longer tool descriptions, in exchange for fewer confident wrong answers.</p></article>
     </div>
@@ -74,7 +74,7 @@
 
   <section class="block">
     <p class="eyebrow">Results</p>
-    <h2>What's verified.</h2>
+    <h2>Verified results.</h2>
     <div class="results">
       <div><b>167</b><span>automated tests, no network or keys needed</span></div>
       <div><b>23 / 23</b><span>evaluation cases passed against a live model and live data, for about $0.43</span></div>
@@ -88,8 +88,8 @@
   </section>
 
   <section class="block">
-    <p class="eyebrow">What I'd do next</p>
-    <h2>Honest about what's left.</h2>
+    <p class="eyebrow">Roadmap</p>
+    <h2>Planned improvements.</h2>
     <ul class="points next">
       <li><span><b>Verify the OpenAI and Azure OpenAI adapters</b> with real credentials. Today they're tested with mocks only.</span></li>
       <li><span><b>Deploy to Azure.</b> The infrastructure is written in Bicep but has not been applied.</span></li>
@@ -101,7 +101,7 @@
 </main>
 
 <footer class="cta"><div class="wrap">
-  <div class="top"><h2>Want to talk about how I'd bring this to your team?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
+  <div class="top"><h2>Interested in discussing this work?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
   <div class="next"><a href="gauntlet.html">← Gauntlet</a><span>Next case study: <a href="trialbridge.html">TrialBridge →</a></span></div>
 </div></footer>
 </body>

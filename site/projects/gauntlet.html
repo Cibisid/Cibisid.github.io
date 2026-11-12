@@ -22,7 +22,7 @@
   <section class="head">
     <p class="eyebrow">Case study · Flagship project</p>
     <h1>Gauntlet</h1>
-    <p class="plain">A safety check that stops a bad AI update before customers see it, and undoes a release on its own if problems show up with real traffic.</p>
+    <p class="plain">An evaluation-gated release platform for LLM and agent systems, with progressive canary rollouts and automatic rollback.</p>
     <div class="row"><a class="btn solid" href="../#demo-gauntlet">Try the live demo</a><a class="btn" href="https://github.com/Cibisid/gauntlet" target="_blank" rel="noopener">Source code ↗</a></div>
     <div class="meta">
       <div><span>Role</span><b>Solo project</b></div>
@@ -34,8 +34,8 @@
 
   <section class="block">
     <p class="eyebrow">The problem</p>
-    <h2>AI updates can quietly make a product worse.</h2>
-    <p>Teams change the prompt, swap to a cheaper model, or add a new safety filter almost every week. Any of those changes can make answers less accurate, leak something it shouldn't, slow the app down, or raise the bill. Usually nobody finds out until customers complain, because there's no equivalent of a test suite for "is the AI still as good as before?"</p>
+    <h2>Model and prompt changes can silently degrade a product.</h2>
+    <p>Teams revise prompts, switch to cheaper models and add guardrails continuously. Any of these changes can reduce accuracy, leak protected data, increase latency or raise costs, and regressions often surface only after customers notice, because few teams have a test suite for model behavior.</p>
     <p>Gauntlet treats prompts, models and guardrails like code: every change is versioned, tested against the current version before it merges, and released gradually.</p>
   </section>
 
@@ -74,22 +74,22 @@
 
   <section class="block">
     <p class="eyebrow">Results</p>
-    <h2>What it measured.</h2>
+    <h2>Measured results.</h2>
     <div class="results">
       <div><b>≤ 1 ms</b><span>proxy overhead on 99.7% of 6,720 requests</span></div>
       <div><b>250/s</b><span>peak requests per second on a shared 2-vCPU machine</span></div>
       <div><b>137</b><span>automated tests passing, about 98% coverage</span></div>
     </div>
     <ul class="points">
-      <li><span><b>The gate made the right calls on four demo releases:</b> a harmless rewording passed, a cheaper model failed, a model without an output guardrail failed with 40 of 40 leaks, and the same model with the guardrail passed with 0 of 40.</span></li>
+      <li><span><b>The gate returned the correct verdict on all four demonstration releases:</b> a harmless rewording passed, a cheaper model failed, a model without an output guardrail failed with 40 of 40 leaks, and the same model with the guardrail passed with 0 of 40.</span></li>
       <li><span><b>Real models, real decision:</b> on 514 cases, the smaller gpt-oss-20b scored 95.6% against 99.6% for gpt-oss-120b while costing about 55% less. The gate still said FAIL, because the drop could be as large as 3.9 points, past the 3-point limit.</span></li>
       <li><span><b>Security in CI:</b> OWASP ZAP, Bandit, Semgrep, gitleaks, pip-audit, Trivy and checkov run on every change, plus an end-to-end canary test on a local Kubernetes cluster.</span></li>
     </ul>
   </section>
 
   <section class="block">
-    <p class="eyebrow">What I'd do next</p>
-    <h2>Honest about what's left.</h2>
+    <p class="eyebrow">Roadmap</p>
+    <h2>Planned improvements.</h2>
     <ul class="points next">
       <li><span><b>Qualify the judge</b> with 200 real human labels using the built-in labelling tool.</span></li>
       <li><span><b>Run on real TrialBridge patient cases</b> instead of the synthetic task.</span></li>
@@ -101,7 +101,7 @@
 </main>
 
 <footer class="cta"><div class="wrap">
-  <div class="top"><h2>Want to talk about how I'd bring this to your team?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
+  <div class="top"><h2>Interested in discussing this work?</h2><div class="row"><a class="btn light" href="mailto:siddarth.cibi26@gmail.com">Email me</a><a class="btn" href="https://linkedin.com/in/cibi-siddarth" target="_blank" rel="noopener">LinkedIn</a></div></div>
   <div class="next"><a href="../">← Back to all projects</a><span>Next case study: <a href="llm-gateway.html">LLM Gateway →</a></span></div>
 </div></footer>
 </body>
