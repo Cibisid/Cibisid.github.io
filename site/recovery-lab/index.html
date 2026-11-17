@@ -1222,6 +1222,20 @@ $("askForm").onsubmit=e=>{e.preventDefault();const v=$("askIn").value;$("askIn")
 $("chips").onclick=e=>{const b=e.target.closest("button");if(b)ask(b.textContent)};
 (async()=>{try{if(window.claude&&window.claude.use)sample=await window.claude.use("sample")}catch(e){}if(!sample){$("coachNote").textContent="Open this page on claude.ai to use the coach."}})();
 
+// ---------- cross-tab: receive WHOOP history from app.whoop.com, follow other tabs' saves ----------
+window.addEventListener("message",async e=>{
+  if(e.origin!=="https://app.whoop.com")return;
+  const d=e.data;if(!d||d.type!=="recovery-lab-export"||typeof d.days!=="object")return;
+  location.hash="data";
+  try{await handleFiles([new File([JSON.stringify(d)],"whoop-history.json",{type:"application/json"})]);if(e.source)e.source.postMessage({type:"recovery-lab-ack",ok:true,days:Object.keys(S.days).length},e.origin)}
+  catch(err){if(e.source)e.source.postMessage({type:"recovery-lab-ack",ok:false,error:String(err)},e.origin)}
+});
+window.addEventListener("storage",e=>{
+  if(S.store!=="local")return;
+  if(e.key===LS_DAYS){S.days=lsGet(LS_DAYS)||{};applyData()}
+  else if(e.key===LS_MIN&&BAND.status!=="on"){S.minutes=lsGet(LS_MIN)||{};applyData()}
+});
+
 // ---------- boot ----------
 if(!STANDALONE)$("dlData").classList.add("hide");
 route();
