@@ -321,6 +321,11 @@ table.t th{color:var(--text-muted);font-weight:500}
       </form>
     </div>
     <div class="card">
+      <h2>Your personal model</h2>
+      <p class="sub">Trained in this browser on your imported WHOOP days, then tested on the most recent quarter it didn't train on.</p>
+      <div id="modelCard" class="small"></div>
+    </div>
+    <div class="card">
       <h2>Your stored days</h2>
       <p class="sub" id="storedSub"></p>
       <div class="row" style="margin-bottom:8px">
@@ -399,7 +404,67 @@ const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).tri
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
 // ---------- scoring engine ----------
-function maxHr(){return num(S.settings.maxHr)||Math.round(208-0.7*(num(S.settings.age)||24))}
+function maxHr(){return num(S.settings.maxHr)||(S.cal&&S.cal.strain&&S.cal.strain.M)||Math.round(208-0.7*(num(S.settings.age)||24))}
+// ---------- personal calibration: learn WHOOP's scoring from imported WHOOP days ----------
+const REC_W=21;
+function recFeats(z){return [1,z.zH,z.zR,z.zS,z.ps,z.asl,z.zH*z.zH,z.zH*z.zR,Math.min(z.zH,0)]}
+function ols(X,y,l2){const n=X[0].length;const A=Array.from({length:n},()=>new Array(n).fill(0)),b=new Array(n).fill(0);
+  X.forEach((x,i)=>{for(let a=0;a<n;a++){b[a]+=x[a]*y[i];for(let c=0;c<n;c++)A[a][c]+=x[a]*x[c]}});
+  for(let i=1;i<n;i++)A[i][i]+=(l2||0);A[0][0]+=1e-6;
+  for(let i=0;i<n;i++){let p=i;for(let r=i+1;r<n;r++)if(Math.abs(A[r][i])>Math.abs(A[p][i]))p=r;[A[i],A[p]]=[A[p],A[i]];[b[i],b[p]]=[b[p],b[i]];
+    for(let r=0;r<n;r++){if(r===i)continue;const f=A[r][i]/A[i][i];for(let c=i;c<n;c++)A[r][c]-=f*A[i][c];b[r]-=f*b[i]}}
+  return b.map((v,i)=>v/A[i][i])}
+const logit=p=>{p=clamp(p,1,99)/100;return Math.log(p/(1-p))}, sigm=x=>100/(1+Math.exp(-x));
+function recZ(d,prev,win){
+  const pick=f=>win.map(f).filter(v=>v!=null&&isFinite(v));
+  const lh=pick(o=>o.hrv>0?Math.log(o.hrv):null),rh=pick(o=>o.rhr);
+  if(!(d.hrv>0)||lh.length<5)return null;
+  const zH=clamp((Math.log(d.hrv)-mean(lh))/Math.max(sd(lh)||0,0.05),-4,4);
+  const zR=d.rhr!=null&&rh.length>=5?clamp((mean(rh)-d.rhr)/Math.max(sd(rh)||0,1),-4,4):0;
+  const zS=d.sleepPerf!=null?clamp((d.sleepPerf-85)/15,-3,1):0;
+  const ps=prev&&prev.strain!=null?(prev.strain-10)/5:0;
+  const asl=d.asleep!=null?(d.asleep-420)/60:0;
+  return {zH,zR,zS,ps,asl};
+}
+function trimpW(hr,rhr,dur,M,E){const x=clamp((hr-rhr)/(M-rhr),0,1);return dur*x*0.64*Math.exp(E*x)}
+function strainMap(t,c){if(!c)return strainFromTrimp(t);return clamp(c.form==="log"?c.a*Math.log(1+t/c.b):21*(1-Math.exp(-t/c.K)),0,21)}
+function calibrate(src){
+  const ks=Object.keys(src).sort();
+  const wd=ks.filter(k=>/whoop/.test(src[k].source||"")&&num(src[k].recovery)!=null);
+  if(wd.length<60)return null;
+  const sig=wd.length+":"+wd[wd.length-1]+":"+maxHr.length;
+  const cached=lsGet("rl_cal_v1");if(cached&&cached.sig===sig)return cached;
+  // recovery
+  const hist=[];const rows=[];let prev=null;
+  for(const k of ks){const d=src[k];const o={date:k,hrv:num(d.hrv),rhr:num(d.rhr),sleepPerf:num(d.sleepPerf),asleep:sleepMinutes(d),strain:num(d.strain),src:d.source||""};
+    if(/whoop/.test(o.src)&&num(d.recovery)!=null){const z=recZ(o,prev,hist.slice(-REC_W));if(z)rows.push({y:num(d.recovery),z})}
+    hist.push(o);prev=o}
+  const split=Math.floor(rows.length*0.75),tr=rows.slice(0,split),te=rows.slice(split);
+  const fit=set=>ols(set.map(r=>recFeats(r.z)),set.map(r=>logit(r.y)),0.5);
+  const wt=fit(tr);const pr=(r,w)=>clamp(sigm(recFeats(r.z).reduce((s,v,i)=>s+v*w[i],0)),1,99);
+  const zn=v=>v>=67?2:v>=34?1:0;
+  const rec={w:fit(rows),n:rows.length,test:te.length,mae:mean(te.map(r=>Math.abs(pr(r,wt)-r.y))),zone:mean(te.map(r=>zn(pr(r,wt))===zn(r.y)?1:0))};
+  // workout strain
+  const W=[];for(const k of ks){const d=src[k];if(!/whoop/.test(d.source||""))continue;for(const x of (d.workouts||[]))if(num(x.avgHr)&&num(x.durMin)>=5&&num(x.strain)!=null&&num(d.rhr))W.push({hr:num(x.avgHr),dur:num(x.durMin),s:num(x.strain),rhr:num(d.rhr)})}
+  let strain=null;
+  if(W.length>=30){
+    const sp=Math.floor(W.length*0.75),wtr=W.slice(0,sp),wte=W.slice(sp);
+    const cands=[];
+    for(let M=185;M<=212;M+=1)for(const E of [1,1.25,1.5,1.92]){
+      const T=wtr.map(q=>trimpW(q.hr,q.rhr,q.dur,M,E));
+      for(let K=20;K<=200;K+=4)cands.push({form:"exp",M,E,K,e:mean(wtr.map((q,i)=>Math.abs(21*(1-Math.exp(-T[i]/K))-q.s)))});
+      for(const b of [2,4,6,8,12,16,24,32])for(let a=2;a<=9;a+=0.25)cands.push({form:"log",M,E,a,b,e:mean(wtr.map((q,i)=>Math.abs(Math.min(21,a*Math.log(1+T[i]/b))-q.s)))});
+    }
+    cands.sort((x,y)=>x.e-y.e);const best=cands[0];
+    best.mae=mean(wte.map(q=>Math.abs(strainMap(trimpW(q.hr,q.rhr,q.dur,best.M,best.E),best)-q.s)));best.n=W.length;delete best.e;
+    strain=best;
+  }
+  // sleep need baseline: WHOOP need minus its strain and debt adds
+  const nb=[];for(let i=1;i<ks.length;i++){const d=src[ks[i]],p=src[ks[i-1]];if(/whoop/.test(d.source||"")&&num(d.needMin)&&num(p.needMin)&&p.asleepMin!=null)nb.push(num(d.needMin)-Math.max(0,(num(p.strain)||0)-10)*4.8-0.5*Math.max(0,num(p.needMin)-num(p.asleepMin)))}
+  nb.sort((a,b)=>a-b);const sleepBase=nb.length>=30?Math.round(nb[Math.floor(nb.length/2)]/60*100)/100:null;
+  const out={sig,rec,strain,sleepBase,at:new Date().toISOString(),whoopDays:wd.length};
+  lsSet("rl_cal_v1",out);return out;
+}
 function trimpOf(durMin,avgHr,rhr,mhr){
   if(!durMin||!avgHr)return null;
   const x=clamp((avgHr-rhr)/(mhr-rhr),0,1);
@@ -427,7 +492,9 @@ function compute(src){
   const dates=Object.keys(src).sort();
   const mhr=maxHr();
   const out=[];
-  const base=num(S.settings.sleepBase)||7.75;
+  try{S.cal=calibrate(src)}catch(e){console.error(e);S.cal=null}
+  const base=(S.settings.sleepBaseUser&&num(S.settings.sleepBase))||(S.cal&&S.cal.sleepBase)||num(S.settings.sleepBase)||7.75;
+  S.sleepBaseUsed=base;
   for(let i=0;i<dates.length;i++){
     const date=dates[i], d=src[date];
     const prev=out[i-1] && out[i-1].date===addDays(date,-1)?out[i-1]:null;
@@ -454,7 +521,10 @@ function compute(src){
     c.sleepPerf=num(d.sleepPerf)!==null?num(d.sleepPerf):(c.asleep!==null?Math.min(100,Math.round(c.asleep/c.need*100)):null);
     // recovery
     const rhrBase=rh.length>=3?mean(rh):(c.rhr||60);
+    const sameSrc=win.filter(o=>/band/.test(o.src)===/band/.test(c.src));
+    const zc=(S.cal&&S.cal.rec)?recZ({hrv:c.hrv,rhr:c.rhr,sleepPerf:c.sleepPerf,asleep:c.asleep},prev,(sameSrc.length>=7?sameSrc:win).slice(-REC_W)):null;
     if(num(d.recovery)!==null){c.recovery=Math.round(num(d.recovery));c.recSrc="imported"}
+    else if(zc){c.recovery=clamp(Math.round(sigm(recFeats(zc).reduce((s,v,i)=>s+v*S.cal.rec.w[i],0))),1,99);c.recSrc="calibrated";c.calibrating=(sameSrc.length<7)}
     else if(c.lnHrv!==null){
       const hm_=lnH.length>=3?mean(lnH):Math.log(60), hs=Math.max(lnH.length>=3?sd(lnH):0.25,0.08);
       const zH=clamp((c.lnHrv-hm_)/hs,-3,3);
@@ -469,9 +539,10 @@ function compute(src){
     let tr=0,has=false,wk=0;
     c.workouts=(d.workouts||[]).map(w=>{
       const o=Object.assign({},w);
-      let t=trimpOf(num(w.durMin),num(w.avgHr),rhrBase,mhr);
+      const sc=S.cal&&S.cal.strain;
+      let t=num(w.durMin)&&num(w.avgHr)?(sc?trimpW(num(w.avgHr),rhrBase,num(w.durMin),sc.M,sc.E):trimpOf(num(w.durMin),num(w.avgHr),rhrBase,mhr)):null;
       if(t===null&&num(w.strain)!==null)t=trimpFromStrain(num(w.strain));
-      if(t!==null){tr+=t;has=true;o.calcStrain=num(w.strain)!==null?num(w.strain):strainFromTrimp(t)}
+      if(t!==null){tr+=t;has=true;o.calcStrain=num(w.strain)!==null?num(w.strain):Math.round(strainMap(t,S.cal&&S.cal.strain)*10)/10}
       wk+=num(w.kcal)||0;
       return o;
     });
@@ -479,7 +550,7 @@ function compute(src){
     else if(c.steps!==null){tr+=c.steps/1000*4.3;has=true}
     c.trimp=has?tr:null;
     if(num(d.strain)!==null){c.strain=num(d.strain);c.strainSrc="imported"}
-    else {c.strain=has?Math.round(strainFromTrimp(tr)*10)/10:null;c.strainSrc="calculated"}
+    else {c.strain=has?Math.round(strainMap(tr,S.cal&&S.cal.strain)*10)/10:null;c.strainSrc="calculated"}
     out.push(c);
   }
   S.comp=out; S.compMap={}; out.forEach(o=>S.compMap[o.date]=o);
@@ -831,7 +902,7 @@ function renderToday(){
       <p class="small" style="color:var(--text-secondary);margin:6px 0 0">${z==="good"?"You're well recovered. A hard session or a heavy lift day fits.":z==="warn"?"Moderately recovered. Train, but keep the intensity in check.":"Low recovery. Go easy: mobility, a walk, light technique work, and sleep early."}${cur>=tgt[1]?" You've reached the target, so anything more adds fatigue.":""}</p>`;
   }
   // sleep plan
-  const need=(num(S.settings.sleepBase)||7.75)*60+Math.max(0,(c.strain||0)-10)*0.08*60+0.5*(c.debt||0);
+  const need=(S.sleepBaseUsed||7.75)*60+Math.max(0,(c.strain||0)-10)*0.08*60+0.5*(c.debt||0);
   const wt=minsOfDay(S.settings.wakeTime)||420;
   const latency=15;
   const bed=wt-need-latency;
@@ -907,8 +978,20 @@ function renderData(){
   const ds=Object.keys(S.days).sort().reverse();
   $("storedSub").textContent=S.demo?"Nothing stored yet. The dashboard is showing demo data.":ds.length+" days stored "+(S.store==="db"?"in this page's private database (only you can read it)":"in this browser only");
   $("storedTable").innerHTML=S.demo||!ds.length?"":`<table class="t"><tr><th>Date</th><th>Source</th><th>HRV</th><th>RHR</th><th>Sleep</th><th>Workouts</th><th></th></tr>${ds.slice(0,120).map(k=>{const d=S.days[k];const c=S.compMap[k]||{};return `<tr><td>${dayName(k)}</td><td>${esc(d.source||"")}</td><td>${fmt(c.hrv)}</td><td>${fmt(c.rhr,1)}</td><td>${hm(c.asleep)}</td><td>${(d.workouts||[]).length}</td><td><button class="btn small" data-del="${k}" style="padding:3px 8px">✕</button></td></tr>`}).join("")}</table>`;
-  const f=$("settingsForm");["age","maxHr","sleepBase","wakeTime","goal"].forEach(k=>{if(document.activeElement!==f[k])f[k].value=S.settings[k]??""});
+  const f=$("settingsForm");["age","maxHr","sleepBase","wakeTime","goal"].forEach(k=>{if(document.activeElement!==f[k])f[k].value=(k==="sleepBase"?S.sleepBaseUsed:S.settings[k])??""});
+  renderModel();
   if(!$("manual").date.value)$("manual").date.value=ymd(new Date());
+}
+
+function renderModel(){
+  const el=$("modelCard");if(!el)return;const c=S.cal;
+  if(!c){el.innerHTML='<span class="muted">Import at least 60 days of WHOOP history to train it. Until then the page uses the general formulas in "How it works".</span>';return}
+  const r=c.rec,s=c.strain;
+  el.innerHTML=`<dl class="kv">
+   <dt>Recovery</dt><dd>within ${fmt(r.mae,1)} points of WHOOP on average · same zone ${Math.round(r.zone*100)}% of days <span class="muted">(${r.test} test days, ${r.n} total)</span></dd>
+   <dt>Workout strain</dt><dd>${s?"within "+fmt(s.mae,1)+" of WHOOP · max HR "+s.M+" · "+s.form+" curve <span class=\"muted\">("+s.n+" workouts)</span>":"needs 30+ WHOOP workouts with heart rate"}</dd>
+   <dt>Sleep need baseline</dt><dd>${c.sleepBase?fmt(c.sleepBase,2)+" h, from WHOOP's own sleep need":"—"}</dd>
+   <dt>Trained on</dt><dd>${c.whoopDays} WHOOP days</dd></dl>`;
 }
 
 // ---------- apply ----------
@@ -1088,8 +1171,9 @@ function deriveBand(){
   const rhrRef=rhrs.length?mean(rhrs):60;
   for(const D of dates){
     const k=idx(D)*1440;let t=0,cov=0;
-    for(let i=0;i<1440;i++){const r=all.get(k+i);if(!r||r[1]==null)continue;cov++;if(inSleep(k+i))continue;const ref=(out[D]&&out[D].rhr)||rhrRef;const x=clamp((r[1]-ref)/(mhr-ref),0,1);if(x>=0.3)t+=x*0.64*Math.exp(1.92*x)}
-    if(cov>=60){out[D]=out[D]||{date:D,source:"band"};out[D].strain=Math.round(strainFromTrimp(t)*10)/10;out[D].bandCoverageMin=cov}
+    const sc=S.cal&&S.cal.strain;const M=sc?sc.M:mhr,E=sc?sc.E:1.92;
+    for(let i=0;i<1440;i++){const r=all.get(k+i);if(!r||r[1]==null)continue;cov++;if(inSleep(k+i))continue;const ref=(out[D]&&out[D].rhr)||rhrRef;const x=clamp((r[1]-ref)/(M-ref),0,1);if(x>=0.3)t+=x*0.64*Math.exp(E*x)}
+    if(cov>=60){out[D]=out[D]||{date:D,source:"band"};out[D].strain=Math.round(strainMap(t,sc)*10)/10;out[D].bandCoverageMin=cov}
   }
   return out;
 }
@@ -1184,7 +1268,8 @@ $("manual").onsubmit=async e=>{
 };
 $("settingsForm").onsubmit=async e=>{
   e.preventDefault();const f=e.target;
-  S.settings={age:num(f.age.value)||24,maxHr:num(f.maxHr.value),sleepBase:num(f.sleepBase.value)||7.75,wakeTime:f.wakeTime.value||"07:00",goal:f.goal.value||""};
+  const sbv=num(f.sleepBase.value);
+  S.settings={age:num(f.age.value)||24,maxHr:num(f.maxHr.value),sleepBase:sbv||7.75,sleepBaseUser:!!sbv&&Math.abs(sbv-(S.sleepBaseUsed||0))>0.01?true:!!S.settings.sleepBaseUser,wakeTime:f.wakeTime.value||"07:00",goal:f.goal.value||""};
   await saveSettings();$("setMsg").textContent="Saved.";compute();render();
 };
 
