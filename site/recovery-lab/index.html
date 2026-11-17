@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0e0f10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Recovery Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0e0f10; --surface-1:#1a1a19; --surface-2:#232321; --line:#33332f;
+  --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#8d8c84;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s7:#9085e9;
+  --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
+  --grid:#2c2c29;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    color-scheme:light;
+    --bg:#f3f2ef; --surface-1:#fcfcfb; --surface-2:#f0efec; --line:#dddcd6;
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#7a7972;
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s7:#6250d6;
+    --grid:#e6e5e0;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text-primary);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:14px 14px 80px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.brand{font-weight:800;font-size:20px;letter-spacing:-.02em}
+.brand small{display:block;font-weight:500;font-size:12px;color:var(--text-muted);letter-spacing:0}
+.pill{font-size:12px;padding:4px 9px;border-radius:999px;background:var(--surface-2);color:var(--text-secondary);white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px;position:sticky;top:0;background:var(--bg);z-index:5;scrollbar-width:none}
+nav a{flex:0 0 auto;text-decoration:none;color:var(--text-secondary);padding:7px 13px;border-radius:999px;background:var(--surface-1);font-size:14px;font-weight:500;border:1px solid var(--line)}
+nav a.on{background:var(--text-primary);color:var(--bg);border-color:var(--text-primary)}
+.banner{background:var(--surface-2);border:1px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px;color:var(--text-secondary);margin-bottom:12px}
+.banner b{color:var(--text-primary)}
+.card{background:var(--surface-1);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.card h2{margin:0 0 2px;font-size:16px;letter-spacing:-.01em}
+.card .sub{color:var(--text-muted);font-size:12.5px;margin:0 0 10px}
+.grid2{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){.grid2{grid-template-columns:1fr 1fr}}
+.daybar{display:flex;align-items:center;justify-content:space-between;margin:2px 0 10px}
+.daybar button{background:var(--surface-1);border:1px solid var(--line);border-radius:10px;width:38px;height:34px;cursor:pointer;font-size:16px}
+.daybar button:disabled{opacity:.35;cursor:default}
+.daybar .d{font-weight:700;font-size:16px;text-align:center}
+.daybar .d small{display:block;font-weight:500;font-size:12px;color:var(--text-muted)}
+.rings{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center}
+.ring{position:relative}
+.ring svg{width:100%;max-width:150px;height:auto;display:block;margin:0 auto}
+.ring .v{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.ring .v b{font-size:clamp(20px,6vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1}
+.ring .v span{font-size:11px;color:var(--text-muted);margin-top:3px}
+.ring .lbl{font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-top:4px}
+.ring .zone{font-size:11.5px;color:var(--text-muted)}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:620px){.tiles{grid-template-columns:repeat(3,1fr)}}
+.tile{background:var(--surface-2);border-radius:12px;padding:10px 11px}
+.tile .k{font-size:12px;color:var(--text-muted)}
+.tile .n{font-size:21px;font-weight:700;letter-spacing:-.02em}
+.tile .n small{font-size:12px;font-weight:500;color:var(--text-muted);margin-left:2px}
+.tile .delta{font-size:12px;color:var(--text-secondary)}
+.tile svg{display:block;width:100%;height:26px;margin-top:4px}
+.statusdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:600;font-size:14px}
+.btn.primary{background:var(--s1);border-color:var(--s1);color:#fff}
+.btn.danger{color:var(--crit)}
+.btn:disabled{opacity:.5;cursor:default}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;padding:5px 11px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text-secondary)}
+.seg button.on{background:var(--surface-1);color:var(--text-primary);font-weight:600}
+.chart{width:100%;position:relative}
+.chart svg{display:block;width:100%;overflow:visible}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--text-secondary);margin:4px 0 6px}
+.legend i{display:inline-block;width:12px;height:4px;border-radius:2px;margin-right:5px;vertical-align:3px}
+.legend i.sq{height:10px;width:10px;border-radius:3px;vertical-align:0}
+#tip{position:fixed;pointer-events:none;background:var(--text-primary);color:var(--bg);font-size:12.5px;padding:7px 9px;border-radius:8px;z-index:50;opacity:0;transition:opacity .08s;max-width:240px;line-height:1.35;white-space:pre-line}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.kv dt{color:var(--text-muted)}
+.kv dd{margin:0;font-weight:600}
+.big{font-size:28px;font-weight:800;letter-spacing:-.03em}
+.muted{color:var(--text-muted)}
+.small{font-size:12.5px}
+label.f{display:block;font-size:12.5px;color:var(--text-muted);margin-bottom:8px}
+label.f input,label.f select,label.f textarea{display:block;width:100%;margin-top:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:15px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+@media(min-width:620px){.fgrid{grid-template-columns:repeat(3,1fr)}}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;color:var(--text-secondary);cursor:pointer}
+.drop.over{border-color:var(--s1);background:var(--surface-2)}
+.log{font-size:12.5px;color:var(--text-secondary);white-space:pre-wrap;margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th,table.t td{text-align:right;padding:5px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t th{color:var(--text-muted);font-weight:500}
+.tablewrap{overflow-x:auto}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;margin-bottom:10px}
+.msg{padding:9px 12px;border-radius:12px;max-width:92%;white-space:pre-wrap;font-size:14.5px}
+.msg.u{align-self:flex-end;background:var(--s1);color:#fff}
+.msg.a{align-self:flex-start;background:var(--surface-2)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chips button{background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer}
+.how h3{font-size:14.5px;margin:14px 0 4px}
+.how p,.how li{font-size:14px;color:var(--text-secondary)}
+.how code{background:var(--surface-2);padding:1px 5px;border-radius:5px;font-size:12.5px}
+.hide{display:none!important}
+.bar-track{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:4px}
+.target{position:absolute;top:-3px;height:14px;border:2px solid var(--text-primary);border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Recovery Lab<small>Recovery · Strain · Sleep</small></div>
+    <span class="pill" id="storePill">Loading…</span>
+  </header>
+  <nav id="nav">
+    <a href="#today" data-v="today">Today</a>
+    <a href="#band" data-v="band">Band</a>
+    <a href="#trends" data-v="trends">Trends</a>
+    <a href="#sleep" data-v="sleep">Sleep</a>
+    <a href="#coach" data-v="coach">Coach</a>
+    <a href="#data" data-v="data">Data</a>
+    <a href="#how" data-v="how">How it works</a>
+  </nav>
+  <div id="demoBanner" class="banner hide"><b>You're looking at demo data.</b> Connect your WHOOP band on the <a href="#band" style="color:inherit">Band</a> tab to start recording real data, or load files on the Data tab.</div>
+
+  <!-- TODAY -->
+  <section id="v-today" class="view">
+    <div class="daybar">
+      <button id="prevDay" aria-label="Previous day">‹</button>
+      <div class="d" id="dayLabel">—</div>
+      <button id="nextDay" aria-label="Next day">›</button>
+    </div>
+    <div class="card">
+      <div class="rings" id="rings"></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>Strain coach</h2>
+        <p class="sub" id="strainSub">Target strain for the day from this morning's recovery</p>
+        <div id="strainCoach"></div>
+      </div>
+      <div class="card">
+        <h2>Sleep planner</h2>
+        <p class="sub">Sleep you need tonight and when to be in bed</p>
+        <div id="sleepPlan"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Vitals</h2>
+      <p class="sub">Compared with your 30-day baseline. Lines show the last 14 days.</p>
+      <div class="tiles" id="tiles"></div>
+    </div>
+    <div class="card">
+      <h2>Workouts</h2>
+      <div id="workouts" class="small"></div>
+    </div>
+  </section>
+
+  <!-- BAND -->
+  <section id="v-band" class="view hide">
+    <div class="card">
+      <h2>Live from your band</h2>
+      <p class="sub" id="bandSupport">Checking Bluetooth…</p>
+      <div class="row" style="justify-content:space-between;align-items:flex-end;margin:6px 0 12px">
+        <div><div class="small muted">Heart rate</div><div class="big" id="liveHr">—</div></div>
+        <div><div class="small muted">HRV (last minute)</div><div class="big" id="liveHrv">—</div></div>
+        <div><div class="small muted">Battery</div><div class="big" id="liveBat">—</div></div>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="bandConnect">Connect band</button>
+        <button class="btn" id="bandAll">Show all devices</button>
+        <button class="btn hide" id="bandStop">Disconnect</button>
+      </div>
+      <p class="small" id="bandStatus" style="color:var(--text-secondary);margin:10px 0 0">Not connected.</p>
+    </div>
+    <div class="card">
+      <h2>Recorded today</h2>
+      <p class="sub" id="bandCoverage">—</p>
+      <div class="chart" id="cLiveHr"></div>
+    </div>
+    <div class="card how">
+      <h2>How recording works</h2>
+      <p>Your band sends heart rate and beat-to-beat (RR) intervals over standard Bluetooth. While this page is open and the band is in range, every minute is saved. From those minutes the page works out your sleep window, overnight HRV and resting heart rate, and the day's strain, and they feed Today, Trends and Sleep.</p>
+      <ul>
+        <li><b>Overnight is what matters.</b> Recovery needs the band connected while you sleep. Leave this tab open, laptop plugged in and near your bed.</li>
+        <li><b>Stop the laptop sleeping:</b> Windows Settings → System → Power → Screen and sleep → "When plugged in, put my device to sleep after" → Never. The screen can turn off.</li>
+        <li><b>One connection at a time:</b> close the WHOOP app on your phone or turn the phone's Bluetooth off, or the band stays busy.</li>
+        <li><b>Daytime strain</b> only counts minutes when you're in range of the laptop. Gaps are shown as gaps, not guessed.</li>
+        <li>No movement sensor is read, so sleep stages aren't available from the band. Sleep timing comes from your heart rate settling.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- TRENDS -->
+  <section id="v-trends" class="view hide">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <div class="seg" id="rangeSeg"><button data-r="14">14d</button><button data-r="30" class="on">30d</button><button data-r="90">90d</button></div>
+      <span class="small muted" id="rangeNote"></span>
+    </div>
+    <div class="card">
+      <h2>Recovery</h2>
+      <div class="legend"><span><i class="sq" style="background:var(--good)"></i>Green 67–99</span><span><i class="sq" style="background:var(--warn)"></i>Yellow 34–66</span><span><i class="sq" style="background:var(--crit)"></i>Red 1–33</span></div>
+      <div class="chart" id="cRecovery"></div>
+    </div>
+    <div class="card">
+      <h2>Heart rate variability (ms)</h2>
+      <div class="legend"><span><i style="background:var(--s1)"></i>Daily HRV</span><span><i style="background:var(--s2)"></i>7-day average</span></div>
+      <div class="chart" id="cHrv"></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h2>Resting heart rate (bpm)</h2><div class="chart" id="cRhr"></div></div>
+      <div class="card"><h2>Day strain (0–21)</h2><div class="chart" id="cStrain"></div></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>Training load</h2>
+        <p class="sub">7-day strain against your 28-day norm</p>
+        <div id="load"></div>
+      </div>
+      <div class="card">
+        <h2>What drives your recovery</h2>
+        <p class="sub">Correlations across the selected range</p>
+        <div id="corr"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Table view</h2>
+      <div class="tablewrap" id="trendTable"></div>
+    </div>
+  </section>
+
+  <!-- SLEEP -->
+  <section id="v-sleep" class="view hide">
+    <div class="grid2">
+      <div class="card"><h2>Last night</h2><div id="lastNight"></div></div>
+      <div class="card"><h2>Consistency & debt</h2><div id="consistency"></div></div>
+    </div>
+    <div class="card">
+      <h2>Sleep stages (hours)</h2>
+      <div class="legend"><span><i class="sq" style="background:var(--s1)"></i>Deep</span><span><i class="sq" style="background:var(--s2)"></i>REM</span><span><i class="sq" style="background:var(--s3)"></i>Light</span><span><i class="sq" style="background:var(--s4)"></i>Awake</span></div>
+      <div class="chart" id="cStages"></div>
+    </div>
+    <div class="card">
+      <h2>Sleep performance (% of need)</h2>
+      <div class="chart" id="cSleepPerf"></div>
+    </div>
+  </section>
+
+  <!-- COACH -->
+  <section id="v-coach" class="view hide">
+    <div class="card">
+      <h2>Ask Claude</h2>
+      <p class="sub">Claude reads your last 14 days and your goal, then answers. Coaching only, not medical advice.</p>
+      <div class="chips" id="chips">
+        <button>How hard should I train today?</button>
+        <button>Why is my recovery where it is?</button>
+        <button>Give me a weekly review</button>
+        <button>How do I raise my HRV?</button>
+      </div>
+      <div class="chat" id="chat"></div>
+      <form id="askForm" class="row">
+        <input id="askIn" placeholder="Ask about your recovery, sleep or training…" style="flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 11px">
+        <button class="btn primary" id="askBtn">Ask</button>
+      </form>
+      <p class="small muted" id="coachNote"></p>
+    </div>
+  </section>
+
+  <!-- DATA -->
+  <section id="v-data" class="view hide">
+    <div class="card">
+      <h2>Import data</h2>
+      <p class="sub">Drop one or more files. Accepted: WHOOP export CSVs (physiological_cycles, sleeps, workouts), a JSON export from OpenWhoop or another band app, or any CSV with a date column.</p>
+      <div class="drop" id="drop">Tap to choose files, or drop them here<input type="file" id="file" multiple accept=".csv,.json,.txt" class="hide"></div>
+      <div class="log" id="importLog"></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="copyTpl">Copy CSV template</button>
+        <span class="small muted" id="copyMsg"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Morning check-in</h2>
+      <p class="sub">Type numbers from any app (Apple Watch, OpenWhoop, a chest strap). Blank fields are skipped.</p>
+      <form id="manual">
+        <div class="fgrid">
+          <label class="f">Date<input type="date" name="date" required></label>
+          <label class="f">HRV (ms)<input type="number" step="any" name="hrv"></label>
+          <label class="f">Resting HR (bpm)<input type="number" step="any" name="rhr"></label>
+          <label class="f">Sleep (hours)<input type="number" step="any" name="sleepHours"></label>
+          <label class="f">Bedtime<input type="time" name="bed"></label>
+          <label class="f">Wake time<input type="time" name="wakeT"></label>
+          <label class="f">Resp. rate (rpm)<input type="number" step="any" name="resp"></label>
+          <label class="f">SpO₂ (%)<input type="number" step="any" name="spo2"></label>
+          <label class="f">Active calories<input type="number" step="any" name="activeKcal"></label>
+          <label class="f">Workout (min)<input type="number" step="any" name="wDur"></label>
+          <label class="f">Workout avg HR<input type="number" step="any" name="avgHr"></label>
+          <label class="f">Workout type<input name="wType" placeholder="Lifting"></label>
+        </div>
+        <div class="row"><button class="btn primary">Save day</button><span class="small muted" id="manualMsg"></span></div>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Settings</h2>
+      <form id="settingsForm">
+        <div class="fgrid">
+          <label class="f">Age<input type="number" name="age"></label>
+          <label class="f">Max HR (blank = 208 − 0.7 × age)<input type="number" name="maxHr"></label>
+          <label class="f">Baseline sleep need (h)<input type="number" step="0.05" name="sleepBase"></label>
+          <label class="f">Usual wake time<input type="time" name="wakeTime"></label>
+        </div>
+        <label class="f">Your goal (Claude coaches toward it)<input name="goal"></label>
+        <div class="row"><button class="btn primary">Save settings</button><span class="small muted" id="setMsg"></span></div>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Your stored days</h2>
+      <p class="sub" id="storedSub"></p>
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn" id="dlData">Download backup</button>
+        <button class="btn" id="copyData">Copy all data as JSON</button>
+        <button class="btn danger" id="clearAll">Delete all data</button>
+        <span class="small muted" id="dataMsg"></span>
+      </div>
+      <div class="tablewrap" id="storedTable"></div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section id="v-how" class="view hide">
+    <div class="card how">
+      <h2>How the scores are calculated</h2>
+      <p>WHOOP's exact formulas are private. These are open, research-based stand-ins that track the same signals, so treat them as close cousins rather than identical numbers. If an import already includes WHOOP's own recovery or strain, the page shows those instead.</p>
+      <h3>Recovery (1–99%)</h3>
+      <p>Each morning is compared with your own last 30 days. HRV is log-transformed (ln RMSSD) and turned into a z-score; resting HR, respiratory rate and sleep performance get z-scores too. They're weighted <code>60% HRV · 25% resting HR · 10% sleep · 5% respiratory rate</code> and passed through a logistic curve. Green is 67 or more, yellow 34–66, red 33 or less. The first 4 days are marked "calibrating" because there's no baseline yet.</p>
+      <h3>Strain (0–21)</h3>
+      <p>Cardiovascular load is Banister TRIMP: minutes × heart-rate reserve × 0.64·e<sup>1.92·HRR</sup>, using max HR from the Tanaka formula (208 − 0.7 × age) unless you set your own. Activity outside workouts is estimated from active calories or steps. Load maps onto a curve that flattens near the top, <code>21 × (1 − e<sup>−TRIMP/128</sup>)</code>, so each extra point of strain is harder to earn, which is how WHOOP's scale behaves.</p>
+      <h3>Strain target</h3>
+      <p>Green recovery: 14–18. Yellow: 10–14. Red: under 10 (active recovery).</p>
+      <h3>Sleep need & performance</h3>
+      <p>Need = your baseline (7.75 h by default) + 0.08 h for every strain point above 10 the day before + half of the debt you're carrying. Performance = hours asleep ÷ need, capped at 100%. Consistency comes from how much your bed and wake times varied over the last 4 nights.</p>
+      <h3>Training load</h3>
+      <p>Average strain over 7 days ÷ average over 28 days. 0.8–1.3 is the usual productive range; above 1.5 is a sharp spike.</p>
+      <h3>Where data comes from</h3>
+      <p>A WHOOP band with no membership doesn't sync to WHOOP's servers, so its data has to come off the band over Bluetooth. Open-source tools like OpenWhoop (in a Web Bluetooth browser) do that and can export JSON, which this page reads. An Apple Watch works too: ask Claude in chat to pull your Health data into this page.</p>
+      <p class="small muted">Not a medical device. Unusual readings, like a resting HR jump or a sudden HRV crash with symptoms, are a reason to talk to a doctor.</p>
+    </div>
+  </section>
+</div>
+<div id="tip"></div>
+
+<script>
+(function(){
+"use strict";
+// ---------- state ----------
+const STANDALONE=(()=>{try{return window.top===window}catch(e){return false}})();
+const DEFAULT_SETTINGS={age:24,maxHr:null,sleepBase:7.75,wakeTime:"07:00",goal:STANDALONE?"":"Build muscle and definition; lifting Monday to Friday, weekends off"};
+const S={days:{},settings:Object.assign({},DEFAULT_SETTINGS),demo:false,store:"local",db:null,sel:null,range:30,comp:[],compMap:{},view:"today"};
+const $=id=>document.getElementById(id);
+const LS_DAYS="rl_days_v1", LS_SET="rl_settings_v1", LS_MIN="rl_minutes_v1";
+S.minutes={};
+
+// ---------- utils ----------
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const num=v=>{if(v===null||v===undefined||v==="")return null;const n=typeof v==="number"?v:parseFloat(String(v).replace(/[%,]/g,""));return isFinite(n)?n:null};
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parseYmd=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parseYmd(s);d.setDate(d.getDate()+n);return ymd(d)};
+function parseDate(v){
+  if(v===null||v===undefined||v==="")return null;
+  if(typeof v==="number"){const d=new Date(v>1e12?v:v*1000);return isNaN(d)?null:d}
+  let s=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return parseYmd(s);
+  let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,m[1]-1,+m[2],+(m[4]||0),+(m[5]||0))}
+  let d=new Date(s.replace(" ","T"));
+  if(isNaN(d))d=new Date(s);
+  return isNaN(d)?null:d;
+}
+function mean(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
+function sd(a){if(a.length<2)return null;const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)*(x-m),0)/(a.length-1))}
+function pearson(xs,ys){const n=xs.length;if(n<8)return null;const mx=mean(xs),my=mean(ys);let a=0,b=0,c=0;for(let i=0;i<n;i++){a+=(xs[i]-mx)*(ys[i]-my);b+=(xs[i]-mx)**2;c+=(ys[i]-my)**2}return b&&c?a/Math.sqrt(b*c):null}
+const fmt=(v,d=0)=>v===null||v===undefined||!isFinite(v)?"—":Number(v).toFixed(d);
+const hm=min=>{if(min===null||min===undefined||!isFinite(min))return"—";min=Math.round(min);return Math.floor(min/60)+"h "+pad(min%60)+"m"};
+const clock=min=>{min=((Math.round(min)%1440)+1440)%1440;let h=Math.floor(min/60),m=min%60;const ap=h>=12?"PM":"AM";h=h%12||12;return h+":"+pad(m)+" "+ap};
+const dayName=s=>parseYmd(s).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+const short=s=>parseYmd(s).toLocaleDateString(undefined,{month:"numeric",day:"numeric"});
+function zone(r){if(r===null||r===undefined)return null;return r>=67?"good":r>=34?"warn":"crit"}
+const ZONE_NAME={good:"Green",warn:"Yellow",crit:"Red"};
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+// ---------- scoring engine ----------
+function maxHr(){return num(S.settings.maxHr)||Math.round(208-0.7*(num(S.settings.age)||24))}
+function trimpOf(durMin,avgHr,rhr,mhr){
+  if(!durMin||!avgHr)return null;
+  const x=clamp((avgHr-rhr)/(mhr-rhr),0,1);
+  return durMin*x*0.64*Math.exp(1.92*x);
+}
+const strainFromTrimp=t=>21*(1-Math.exp(-t/128));
+const trimpFromStrain=s=>-128*Math.log(1-clamp(s,0,20.9)/21);
+function sleepMinutes(d){
+  if(num(d.asleepMin)!==null)return num(d.asleepMin);
+  if(num(d.sleepHours)!==null)return num(d.sleepHours)*60;
+  const p=["deepMin","remMin","lightMin"].map(k=>num(d[k]));
+  if(p.some(v=>v!==null))return p.reduce((a,b)=>a+(b||0),0);
+  return null;
+}
+function minsOfDay(v){
+  if(v===null||v===undefined||v==="")return null;
+  const s=String(v);
+  const m=s.match(/^(\d{1,2}):(\d{2})$/);
+  if(m)return +m[1]*60+ +m[2];
+  const d=parseDate(s);
+  return d?d.getHours()*60+d.getMinutes():null;
+}
+function compute(src){
+  src=src||S.src||{};
+  const dates=Object.keys(src).sort();
+  const mhr=maxHr();
+  const out=[];
+  const base=num(S.settings.sleepBase)||7.75;
+  for(let i=0;i<dates.length;i++){
+    const date=dates[i], d=src[date];
+    const prev=out[i-1] && out[i-1].date===addDays(date,-1)?out[i-1]:null;
+    const win=out.slice(Math.max(0,i-30),i);
+    const pick=k=>win.map(o=>o[k]).filter(v=>v!==null&&v!==undefined&&isFinite(v));
+    const lnH=pick("lnHrv"), rh=pick("rhr"), rr=pick("resp"), st=pick("skinTemp");
+    const c={date,src:d.source||"",workouts:d.workouts||[]};
+    c.hrv=num(d.hrv); c.lnHrv=c.hrv>0?Math.log(c.hrv):null;
+    c.rhr=num(d.rhr); c.resp=num(d.resp); c.spo2=num(d.spo2);
+    c.skinTemp=num(d.skinTemp);
+    c.skinDelta=num(d.skinTempDelta);
+    if(c.skinDelta===null&&c.skinTemp!==null&&st.length>=3)c.skinDelta=c.skinTemp-mean(st);
+    c.steps=num(d.steps); c.kcal=num(d.kcal); c.activeKcal=num(d.activeKcal);
+    c.calibrating=lnH.length<4;
+    // sleep
+    c.asleep=sleepMinutes(d);
+    c.inBed=num(d.inBedMin);
+    c.deep=num(d.deepMin); c.rem=num(d.remMin); c.light=num(d.lightMin); c.awake=num(d.awakeMin);
+    c.onsetMin=minsOfDay(d.onset); c.wakeMin=minsOfDay(d.wake);
+    const strainPrev=prev&&prev.strain!==null?prev.strain:null;
+    const debtPrev=prev&&prev.debt!==null?prev.debt:0;
+    c.need=num(d.needMin)||(base*60+Math.max(0,(strainPrev||0)-10)*0.08*60+0.5*debtPrev);
+    c.debt=c.asleep!==null?clamp(c.need-c.asleep,0,240):(debtPrev||0);
+    c.sleepPerf=num(d.sleepPerf)!==null?num(d.sleepPerf):(c.asleep!==null?Math.min(100,Math.round(c.asleep/c.need*100)):null);
+    // recovery
+    const rhrBase=rh.length>=3?mean(rh):(c.rhr||60);
+    if(num(d.recovery)!==null){c.recovery=Math.round(num(d.recovery));c.recSrc="imported"}
+    else if(c.lnHrv!==null){
+      const hm_=lnH.length>=3?mean(lnH):Math.log(60), hs=Math.max(lnH.length>=3?sd(lnH):0.25,0.08);
+      const zH=clamp((c.lnHrv-hm_)/hs,-3,3);
+      const zR=c.rhr!==null?clamp((rhrBase-c.rhr)/Math.max(rh.length>=3?sd(rh):4,1.5),-3,3):0;
+      const zRR=c.resp!==null&&rr.length>=3?clamp(-(c.resp-mean(rr))/Math.max(sd(rr),0.4),-3,3):0;
+      const zS=c.sleepPerf!==null?clamp((c.sleepPerf-85)/15,-2,1):0;
+      const raw=0.60*zH+0.25*zR+0.10*zS+0.05*zRR;
+      c.recovery=clamp(Math.round(100/(1+Math.exp(-(1.3*raw+0.3)))),1,99);
+      c.recSrc="calculated";
+    } else {c.recovery=null}
+    // strain
+    let tr=0,has=false,wk=0;
+    c.workouts=(d.workouts||[]).map(w=>{
+      const o=Object.assign({},w);
+      let t=trimpOf(num(w.durMin),num(w.avgHr),rhrBase,mhr);
+      if(t===null&&num(w.strain)!==null)t=trimpFromStrain(num(w.strain));
+      if(t!==null){tr+=t;has=true;o.calcStrain=num(w.strain)!==null?num(w.strain):strainFromTrimp(t)}
+      wk+=num(w.kcal)||0;
+      return o;
+    });
+    if(c.activeKcal!==null){tr+=Math.max(0,c.activeKcal-wk)*0.11;has=true}
+    else if(c.steps!==null){tr+=c.steps/1000*4.3;has=true}
+    c.trimp=has?tr:null;
+    if(num(d.strain)!==null){c.strain=num(d.strain);c.strainSrc="imported"}
+    else {c.strain=has?Math.round(strainFromTrimp(tr)*10)/10:null;c.strainSrc="calculated"}
+    out.push(c);
+  }
+  S.comp=out; S.compMap={}; out.forEach(o=>S.compMap[o.date]=o);
+}
+
+// ---------- demo data ----------
+function demoDays(){
+  let seed=7; const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+  const g=()=>{let u=0;for(let i=0;i<6;i++)u+=rnd();return u-3};
+  const days={}; const today=new Date(); let fatigue=0;
+  for(let i=59;i>=0;i--){
+    const dt=new Date(today);dt.setDate(today.getDate()-i);const date=ymd(dt);const dow=dt.getDay();
+    const weekend=dow===0||dow===6;
+    const sleepH=clamp((weekend?8.1:7.0)+g()*0.55-(dow===5?0.6:0),5.2,9.4);
+    const hrv=Math.round(clamp(62+g()*7-fatigue*4+(sleepH-7.4)*4,30,105));
+    const rhr=Math.round((58+g()*1.6+fatigue*1.3-(sleepH-7.4)*0.6)*10)/10;
+    const bedM=(weekend?24*60+20:23*60+5)+Math.round(g()*25);
+    const onset=new Date(dt);onset.setHours(0,0,0,0);onset.setMinutes(bedM-24*60);
+    const wake=new Date(onset.getTime()+(sleepH*60+28)*60000);
+    const asleep=Math.round(sleepH*60);
+    const deep=Math.round(asleep*(0.19+g()*0.02)), rem=Math.round(asleep*(0.23+g()*0.02));
+    const w=[];
+    if(!weekend){w.push({type:"Weightlifting",start:date+"T17:30",durMin:Math.round(58+g()*8),avgHr:Math.round(122+g()*5),maxHr:Math.round(165+g()*6),kcal:Math.round(320+g()*30)})}
+    if(dow===3||(dow===6&&rnd()>0.4)){w.push({type:"Running",start:date+"T07:30",durMin:Math.round(32+g()*6),avgHr:Math.round(152+g()*5),maxHr:Math.round(181+g()*4),kcal:Math.round(380+g()*40)})}
+    const activeKcal=Math.round((weekend?420:520)+g()*80+w.reduce((a,x)=>a+x.kcal,0));
+    fatigue=clamp(fatigue*0.55+(w.length? (w.length>1?1.2:0.75):-0.2)+(7.4-sleepH)*0.15,-0.5,2.5);
+    days[date]={date,source:"demo",hrv,rhr,resp:Math.round((14.6+g()*0.25)*10)/10,spo2:Math.round((96.8+g()*0.4)*10)/10,skinTempDelta:Math.round(g()*0.18*100)/100,
+      asleepMin:asleep,inBedMin:asleep+Math.round(28+g()*6),deepMin:deep,remMin:rem,awakeMin:Math.round(28+g()*6),lightMin:asleep-deep-rem,
+      onset:onset.toISOString(),wake:wake.toISOString(),activeKcal,steps:Math.round((weekend?6500:9200)+g()*1500),workouts:w};
+  }
+  return days;
+}
+
+// ---------- storage ----------
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function setPill(){
+  const n=Object.keys(S.src||S.days).length;
+  $("storePill").textContent=S.demo?"Demo data":(S.store==="db"?"Synced · "+n+" days":"This browser · "+n+" days");
+}
+async function initStore(){
+  let local=lsGet(LS_DAYS)||{};
+  const ls=lsGet(LS_SET); if(ls)Object.assign(S.settings,ls);
+  S.days=local; S.minutes=lsGet(LS_MIN)||{}; applyData();
+  let db=null;
+  try{ if(window.claude&&window.claude.use) db=await window.claude.use("db") }catch(e){db=null}
+  if(!db){S.store="local";applyData();return}
+  const localMin=S.minutes;
+  S.db=db; S.store="db";
+  try{const s=await db.doc("config/settings").get(); if(s.exists)Object.assign(S.settings,s.data())}catch(e){}
+  let timer=setTimeout(()=>{$("storePill").textContent="Can't reach saved data yet"},10000);
+  db.collection("days").onSnapshot(snap=>{
+    if(!snap.metadata.fromCache)clearTimeout(timer);
+    const m={}; snap.docs.forEach(doc=>{const v=doc.data();if(v)m[doc.id]=JSON.parse(JSON.stringify(v))});
+    // migrate anything saved locally before db was available
+    const pending=Object.keys(local).filter(k=>!m[k]);
+    if(pending.length&&!snap.metadata.fromCache){const toPush={};pending.forEach(k=>toPush[k]=local[k]);local={};lsSet(LS_DAYS,{});writeDays(toPush)}
+    S.days=m; applyData();
+  },err=>{clearTimeout(timer);S.store="local";S.db=null;S.days=lsGet(LS_DAYS)||{};applyData()});
+  const cutoff=addDays(ymd(new Date()),-75);
+  db.collection("minutes").where("date",">=",cutoff).onSnapshot(snap=>{
+    const m={};snap.docs.forEach(doc=>{const v=doc.data();if(v&&v.rows)m[doc.id]=v.rows.map(r=>r.slice())});
+    if(!snap.metadata.fromCache){
+      const pend=Object.keys(localMin).filter(k=>!m[k]);
+      pend.forEach(k=>{m[k]=localMin[k];BAND.dirty.add(k)});
+      if(pend.length){lsSet(LS_MIN,{});flushBand()}
+    }
+    S.minutes=m;applyData();
+  },()=>{});
+}
+async function writeDays(map,progress){
+  const keys=Object.keys(map);
+  if(S.db){
+    let done=0;
+    const queue=keys.slice();
+    async function worker(){while(queue.length){const k=queue.shift();try{await S.db.collection("days").doc(k).set(map[k])}catch(e){try{await new Promise(r=>setTimeout(r,400+Math.random()*400));await S.db.collection("days").doc(k).set(map[k])}catch(e2){if(e2&&e2.code==="quota_exceeded")throw e2}}done++;if(progress)progress(done,keys.length)}}
+    await Promise.all([worker(),worker(),worker(),worker()]);
+  }else{
+    keys.forEach(k=>S.days[k]=map[k]); lsSet(LS_DAYS,S.days); applyData();
+  }
+}
+async function deleteDay(k){
+  if(S.db){try{await S.db.collection("days").doc(k).delete()}catch(e){}}
+  else{delete S.days[k];lsSet(LS_DAYS,S.days);applyData()}
+}
+async function saveSettings(){
+  lsSet(LS_SET,S.settings);
+  if(S.db){try{await S.db.doc("config/settings").set(S.settings)}catch(e){}}
+}
+
+// ---------- merge imported rows ----------
+function mergeInto(target,date,fields,workouts){
+  const cur=target[date]||(S.days[date]?JSON.parse(JSON.stringify(S.days[date])):{date});
+  if(cur.source==="demo")delete cur.source;
+  for(const [k,v] of Object.entries(fields)){if(v!==null&&v!==undefined&&v!==""&&!(typeof v==="number"&&!isFinite(v)))cur[k]=v}
+  if(workouts&&workouts.length){
+    cur.workouts=cur.workouts||[];
+    workouts.forEach(w=>{if(!cur.workouts.some(x=>x.start===w.start&&x.type===w.type&&x.durMin===w.durMin))cur.workouts.push(w)});
+  }
+  cur.date=date; cur.updated=new Date().toISOString();
+  target[date]=cur;
+}
+
+// ---------- CSV ----------
+function parseCSV(text){
+  const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;
+    else if(c===","){row.push(f);f=""}
+    else if(c==="\n"||c==="\r"){if(c==="\r"&&text[i+1]==="\n")i++;row.push(f);rows.push(row);row=[];f=""}
+    else f+=c;
+  }
+  if(f!==""||row.length){row.push(f);rows.push(row)}
+  return rows.filter(r=>r.some(x=>x.trim()!==""));
+}
+const RULES=[
+  [/cycle start/,"cycleStart"],[/workout start|^start$|^start time$/,"wStart"],[/cycle end/,"cycleEnd"],
+  [/recovery/,"recovery"],[/resting (heart rate|hr)|^rhr|resting_?hr/,"rhr"],
+  [/heart rate variability|^hrv|rmssd/,"hrv"],[/(skin|wrist).*temp.*(delta|dev)|temp.*delta/,"skinTempDelta"],[/skin temp|wrist temp/,"skinTemp"],
+  [/blood oxygen|spo2|oxygen/,"spo2"],[/activity strain|workout strain/,"wStrain"],[/day strain|^strain$/,"strain"],[/respiratory|resp_?rate|^resp$/,"resp"],
+  [/sleep onset|^bed(time)?$|^onset$/,"onset"],[/wake onset|wake ?time|^wake(_?time)?$/,"wake"],
+  [/asleep duration|^asleep|asleep_?min/,"asleepMin"],[/in bed duration|in_?bed/,"inBedMin"],[/light sleep|^light/,"lightMin"],[/deep|sws/,"deepMin"],[/^rem|rem duration|rem sleep|rem_min/,"remMin"],
+  [/awake duration|^awake/,"awakeMin"],[/sleep need/,"needMin"],[/sleep performance/,"sleepPerf"],[/sleep_?hours|sleep hours|total sleep|^sleep$/,"sleepHours"],
+  [/activity name|workout[ _]?type|^activity$|^sport|^type$/,"wType"],[/workout_?min|duration/,"wDur"],
+  [/avg hr|average hr|avg_?hr|average heart/,"avgHr"],[/max hr|max_?hr|max heart/,"maxHrW"],
+  [/active.*(energy|kcal|cal)/,"activeKcal"],[/energy burned|calories|kcal/,"kcal"],[/steps/,"steps"],[/^nap$|nap/,"nap"],
+  [/^date$|^day$|date/,"date"],
+];
+const SKIP=/debt|efficiency|consistency|zone|distance|altitude|gps|time zone|timezone|percent|%\)$/;
+function mapHeader(h){
+  const l=h.toLowerCase().trim();
+  if(/zone/.test(l))return null;
+  if(SKIP.test(l)&&!/performance|recovery|blood oxygen|spo2/.test(l))return null;
+  for(const [re,k] of RULES)if(re.test(l))return k;
+  return null;
+}
+function wakeDateOf(r){
+  if(r.wake&&!/^\d{1,2}:\d{2}$/.test(r.wake)){const d=parseDate(r.wake);if(d)return ymd(d)}
+  if(r.date){const d=parseDate(r.date);if(d)return ymd(d)}
+  if(r.cycleStart){const d=parseDate(r.cycleStart);if(d){if(d.getHours()>=12)d.setDate(d.getDate()+1);return ymd(d)}}
+  return null;
+}
+function importCSV(text,name,target,log){
+  const rows=parseCSV(text); if(rows.length<2){log.push(name+": no rows found");return}
+  const hdr=rows[0].map(mapHeader);
+  const mapped=hdr.filter(Boolean);
+  if(!mapped.length){log.push(name+": couldn't recognise any columns");return}
+  const isWorkoutFile=hdr.includes("wStart")&&(hdr.includes("wStrain")||hdr.includes("wType"));
+  let n=0,skipped=0;
+  for(const r of rows.slice(1)){
+    const o={};hdr.forEach((k,i)=>{if(k&&r[i]!==undefined&&r[i]!==""&&o[k]===undefined)o[k]=r[i].trim()});
+    if(isWorkoutFile){
+      const st=parseDate(o.wStart); if(!st){skipped++;continue}
+      const w={type:o.wType||"Workout",start:st.toISOString(),durMin:num(o.wDur),avgHr:num(o.avgHr),maxHr:num(o.maxHrW),kcal:num(o.kcal),strain:num(o.wStrain)};
+      mergeInto(target,ymd(st),{},[w]); n++; continue;
+    }
+    if(o.nap&&/true|yes|1/i.test(o.nap)){skipped++;continue}
+    const date=wakeDateOf(o); if(!date){skipped++;continue}
+    const f={source:"import"};
+    ["recovery","rhr","hrv","skinTempDelta","skinTemp","spo2","strain","resp","asleepMin","inBedMin","lightMin","deepMin","remMin","awakeMin","needMin","sleepPerf","sleepHours","activeKcal","kcal","steps"].forEach(k=>{if(o[k]!==undefined)f[k]=num(o[k])});
+    if(f.skinTemp!==null&&f.skinTemp!==undefined&&f.skinTemp>50)f.skinTemp=(f.skinTemp-32)*5/9;
+    if(o.onset)f.onset=/^\d{1,2}:\d{2}$/.test(o.onset)?o.onset:(parseDate(o.onset)||{}).toISOString?.();
+    if(o.wake)f.wake=/^\d{1,2}:\d{2}$/.test(o.wake)?o.wake:(parseDate(o.wake)||{}).toISOString?.();
+    if(f.hrv!==null&&f.hrv!==undefined&&f.hrv<3)f.hrv=f.hrv*1000;
+    const ws=[];
+    if(num(o.wDur)&&!isWorkoutFile)ws.push({type:o.wType||"Workout",start:date+"T12:00",durMin:num(o.wDur),avgHr:num(o.avgHr),maxHr:num(o.maxHrW)});
+    // a sleeps.csv re-maps recovery-less rows; keep whatever is present
+    mergeInto(target,date,f,ws); n++;
+  }
+  log.push(name+": "+n+" rows read"+(skipped?" ("+skipped+" skipped)":"")+" · columns: "+[...new Set(mapped)].join(", "));
+}
+
+// ---------- JSON ----------
+function importJSON(text,name,target,log){
+  let data; try{data=JSON.parse(text)}catch(e){log.push(name+": not valid JSON");return}
+  if(data&&data.type==="recovery-lab-export"){
+    const mins=data.minutes||{};let nm=0;
+    for(const [d,rows] of Object.entries(mins)){if(Array.isArray(rows)&&rows.length){S.minutes[d]=mergeRows(rows.concat(),{});const cur=S.minutes[d];const merged=new Map();(cur||[]).forEach(r=>merged.set(r[0],r));S.minutes[d]=[...merged.values()].sort((a,b)=>a[0]-b[0]);BAND.dirty.add(d);nm++}}
+    for(const [d,v] of Object.entries(data.days||{}))mergeInto(target,d,v,v.workouts);
+    log.push(name+": Recovery Lab backup · "+nm+" days of band minutes, "+Object.keys(data.days||{}).length+" stored days");
+    if(nm){if(!S.db)lsSet(LS_MIN,S.minutes);BAND.forceFlush=true}
+    return;
+  }
+  const arrays=[];
+  (function walk(v,path,depth){
+    if(depth>6||v===null)return;
+    if(Array.isArray(v)){if(v.length&&typeof v[0]==="object"&&v[0]!==null&&!Array.isArray(v[0]))arrays.push({path,arr:v});else if(v.length&&Array.isArray(v[0]))arrays.push({path,arr:v,tuples:true});v.slice(0,3).forEach(x=>walk(x,path+"[]",depth+1));return}
+    if(typeof v==="object")for(const k of Object.keys(v))walk(v[k],path?path+"."+k:k,depth+1);
+  })(data,"",0);
+  if(!arrays.length){log.push(name+": no record lists found");return}
+  let used=0;
+  for(const {path,arr,tuples} of arrays){
+    if(tuples)continue;
+    const keys=Object.keys(arr[0]);
+    const lk=keys.map(k=>k.toLowerCase());
+    const tsKey=keys[lk.findIndex(k=>/^(t|ts|time|timestamp|unix|epoch|date_?time|start|datetime)$/.test(k))];
+    const hrKey=keys[lk.findIndex(k=>/^(hr|bpm|heart_?rate|heartrate|value)$/.test(k))];
+    const rrKey=keys[lk.findIndex(k=>/^(rr|rr_?intervals?|ibi|rri)$/.test(k))];
+    const dailyMap=keys.map(mapHeader);
+    const dailyHits=dailyMap.filter(k=>k&&!["date","wStart","wType","wDur","avgHr","maxHrW","kcal","steps"].includes(k)).length;
+    if(tsKey&&(hrKey||rrKey)&&arr.length>200&&dailyHits<2){
+      const r=streamToDays(arr,tsKey,hrKey,rrKey,target);
+      if(r){log.push(name+" › "+(path||"root")+": "+arr.length.toLocaleString()+" samples → "+r+" days");used++}
+      continue;
+    }
+    if(dailyHits>=1){
+      const csvLike=[keys].concat(arr.map(o=>keys.map(k=>{const v=o[k];return v===null||v===undefined?"":typeof v==="object"?"":String(v)})));
+      const txt=csvLike.map(r=>r.map(x=>/[",\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x).join(",")).join("\n");
+      importCSV(txt,name+" › "+(path||"root"),target,log); used++;
+    }
+  }
+  if(!used)log.push(name+": found lists ("+arrays.slice(0,4).map(a=>a.path||"root").join(", ")+") but none looked like heart rate or daily metrics");
+}
+function streamToDays(arr,tsKey,hrKey,rrKey,target){
+  const mhr=maxHr(); const byDay={};
+  for(const o of arr){
+    const d=parseDate(o[tsKey]); if(!d)continue;
+    const key=ymd(d), minute=d.getHours()*60+d.getMinutes();
+    const b=byDay[key]||(byDay[key]={mins:{},rr:[]});
+    const hr=hrKey?num(o[hrKey]):null;
+    if(hr&&hr>25&&hr<230){const m=b.mins[minute]||(b.mins[minute]=[0,0]);m[0]+=hr;m[1]++}
+    if(rrKey&&minute<7*60){let v=o[rrKey];const list=Array.isArray(v)?v:[v];list.forEach(x=>{x=num(x);if(x){if(x<3)x*=1000;if(x>300&&x<2000)b.rr.push(x)}})}
+  }
+  let n=0;
+  for(const [date,b] of Object.entries(byDay)){
+    const ms=Object.keys(b.mins).map(Number).sort((a,c)=>a-c);
+    if(ms.length<60)continue;
+    const per=ms.map(m=>({m,hr:b.mins[m][0]/b.mins[m][1]}));
+    // resting HR: lowest 5-minute rolling mean
+    let rhr=null;for(let i=0;i+5<=per.length;i++){const a=mean(per.slice(i,i+5).map(p=>p.hr));if(rhr===null||a<rhr)rhr=a}
+    rhr=rhr?Math.round(rhr*10)/10:null;
+    // strain: TRIMP across awake minutes (exclude 00:00-06:00)
+    let t=0;per.forEach(p=>{if(p.m>=360){const x=clamp((p.hr-(rhr||60))/(mhr-(rhr||60)),0,1);if(x>0.3)t+=x*0.64*Math.exp(1.92*x)}});
+    let hrv=null;
+    if(b.rr.length>60){const d=[];for(let i=1;i<b.rr.length;i++){const df=b.rr[i]-b.rr[i-1];if(Math.abs(df)<200)d.push(df*df)}if(d.length>30)hrv=Math.round(Math.sqrt(mean(d)))}
+    mergeInto(target,date,{source:"band",rhr,hrv,strain:Math.round(strainFromTrimp(t)*10)/10});
+    n++;
+  }
+  return n;
+}
+
+// ---------- charts ----------
+const tip=$("tip");
+function showTip(e,text){tip.textContent=text;tip.style.opacity=1;const x=Math.min(e.clientX+12,window.innerWidth-tip.offsetWidth-8),y=Math.max(8,e.clientY-tip.offsetHeight-10);tip.style.left=x+"px";tip.style.top=y+"px"}
+document.addEventListener("pointermove",e=>{const t=e.target.closest&&e.target.closest("[data-tip]");if(t)showTip(e,t.getAttribute("data-tip"));else tip.style.opacity=0});
+document.addEventListener("pointerdown",e=>{const t=e.target.closest&&e.target.closest("[data-tip]");if(t)showTip(e,t.getAttribute("data-tip"))});
+document.addEventListener("scroll",()=>tip.style.opacity=0,{passive:true});
+function frame(el,h){const w=Math.max(260,el.clientWidth||320);return {w,h,pl:34,pr:10,pt:10,pb:22}}
+function niceMax(v){if(!v||v<=0)return 1;const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
+function axes(f,yMin,yMax,ticks,fmtY){
+  let s="";const ih=f.h-f.pt-f.pb;
+  ticks.forEach(t=>{const y=f.pt+ih-(t-yMin)/(yMax-yMin)*ih;s+=`<line x1="${f.pl}" x2="${f.w-f.pr}" y1="${y}" y2="${y}" stroke="var(--grid)" stroke-width="1"/><text x="${f.pl-6}" y="${y+4}" text-anchor="end" font-size="11" fill="var(--text-muted)">${fmtY?fmtY(t):t}</text>`});
+  return s;
+}
+function xLabels(f,labels,step){
+  let s="";const iw=f.w-f.pl-f.pr, n=labels.length;
+  labels.forEach((l,i)=>{if(i%step!==0&&i!==n-1)return;const x=f.pl+(i+0.5)*iw/n;s+=`<text x="${x}" y="${f.h-5}" text-anchor="middle" font-size="11" fill="var(--text-muted)">${l}</text>`});
+  return s;
+}
+function empty(el,msg){el.innerHTML=`<div class="small muted" style="padding:16px 0">${msg||"No data in this range yet."}</div>`}
+function barChart(el,items,{yMax,ticks,h=170,fmtY,refs=[]}={}){
+  if(!items.some(i=>i.value!==null))return empty(el);
+  const f=frame(el,h);const iw=f.w-f.pl-f.pr, ih=f.h-f.pt-f.pb, n=items.length;
+  const mx=yMax||niceMax(Math.max(...items.map(i=>i.value||0)));
+  const tk=ticks||[0,mx/2,mx];
+  let s=axes(f,0,mx,tk,fmtY);
+  refs.forEach(r=>{const y=f.pt+ih-r.v/mx*ih;s+=`<line x1="${f.pl}" x2="${f.w-f.pr}" y1="${y}" y2="${y}" stroke="var(--text-muted)" stroke-dasharray="3 3" stroke-width="1"/>`});
+  const slot=iw/n, bw=Math.max(2,Math.min(22,slot-2));
+  items.forEach((it,i)=>{
+    const x=f.pl+i*slot+(slot-bw)/2;
+    if(it.value!==null){const bh=Math.max(1,it.value/mx*ih), y=f.pt+ih-bh, r=Math.min(4,bw/2,bh);
+      s+=`<path d="M${x},${f.pt+ih}V${y+r}Q${x},${y} ${x+r},${y}H${x+bw-r}Q${x+bw},${y} ${x+bw},${y+r}V${f.pt+ih}Z" fill="${it.color}"/>`}
+    s+=`<rect x="${f.pl+i*slot}" y="${f.pt}" width="${slot}" height="${ih}" fill="transparent" data-tip="${esc(it.tip)}"/>`;
+  });
+  s+=xLabels(f,items.map(i=>i.label),Math.ceil(n/7));
+  el.innerHTML=`<svg viewBox="0 0 ${f.w} ${f.h}" height="${f.h}" role="img">${s}</svg>`;
+}
+function stackChart(el,items,parts,{h=190}={}){
+  if(!items.some(i=>parts.some(p=>i[p.k])))return empty(el);
+  const f=frame(el,h);const iw=f.w-f.pl-f.pr, ih=f.h-f.pt-f.pb, n=items.length;
+  const tot=i=>parts.reduce((a,p)=>a+(i[p.k]||0),0);
+  const mx=Math.max(8,Math.ceil(Math.max(...items.map(tot))));
+  const tk=[];for(let t=0;t<=mx;t+=mx>10?4:2)tk.push(t);
+  let s=axes(f,0,mx,tk);
+  const slot=iw/n, bw=Math.max(2,Math.min(22,slot-2));
+  items.forEach((it,i)=>{
+    const x=f.pl+i*slot+(slot-bw)/2; let y=f.pt+ih;
+    parts.forEach((p,pi)=>{const v=it[p.k]||0;if(!v)return;const bh=v/mx*ih;y-=bh;const gap=pi<parts.length-1?2:0;s+=`<rect x="${x}" y="${y}" width="${bw}" height="${Math.max(0.5,bh-1)}" rx="${pi===parts.length-1||!parts.slice(pi+1).some(q=>it[q.k])?3:0}" fill="${p.c}"/>`});
+    s+=`<rect x="${f.pl+i*slot}" y="${f.pt}" width="${slot}" height="${ih}" fill="transparent" data-tip="${esc(it.tip)}"/>`;
+  });
+  s+=xLabels(f,items.map(i=>i.label),Math.ceil(n/7));
+  el.innerHTML=`<svg viewBox="0 0 ${f.w} ${f.h}" height="${f.h}">${s}</svg>`;
+}
+function lineChart(el,labels,series,{h=170,pad=0.1,tips,labelStep}={}){
+  const all=series.flatMap(s=>s.values).filter(v=>v!==null&&isFinite(v));
+  if(!all.length)return empty(el);
+  const f=frame(el,h);const iw=f.w-f.pl-f.pr, ih=f.h-f.pt-f.pb, n=labels.length;
+  let lo=Math.min(...all),hi=Math.max(...all);const span=Math.max(hi-lo,1);lo=Math.floor(lo-span*pad);hi=Math.ceil(hi+span*pad);
+  const tk=[lo,Math.round((lo+hi)/2),hi];
+  let s=axes(f,lo,hi,tk);
+  const X=i=>f.pl+(i+0.5)*iw/n, Y=v=>f.pt+ih-(v-lo)/(hi-lo)*ih;
+  series.forEach(se=>{
+    let d="",pen=false;se.values.forEach((v,i)=>{if(v===null||!isFinite(v)){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+","+Y(v).toFixed(1);pen=true});
+    s+=`<path d="${d}" fill="none" stroke="${se.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" ${se.dash?'stroke-dasharray="5 4"':""}/>`;
+    if(se.dots&&n<=31)se.values.forEach((v,i)=>{if(v!==null&&isFinite(v))s+=`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${se.color}" stroke="var(--surface-1)" stroke-width="1.5"/>`});
+  });
+  for(let i=0;i<n;i++)s+=`<rect x="${f.pl+i*iw/n}" y="${f.pt}" width="${iw/n}" height="${ih}" fill="transparent" data-tip="${esc(tips?tips[i]:labels[i]+"\n"+series.map(se=>se.name+": "+fmt(se.values[i],se.dec||0)).join("\n"))}"/>`;
+  s+=xLabels(f,labels,labelStep||Math.ceil(n/7));
+  el.innerHTML=`<svg viewBox="0 0 ${f.w} ${f.h}" height="${f.h}">${s}</svg>`;
+}
+function spark(values,color){
+  const v=values.map(x=>x===null||!isFinite(x)?null:x);const ok=v.filter(x=>x!==null);if(ok.length<2)return"";
+  const lo=Math.min(...ok),hi=Math.max(...ok),sp=hi-lo||1,n=v.length;let d="",pen=false;
+  v.forEach((x,i)=>{if(x===null){pen=false;return}const X=i/(n-1)*100,Y=24-(x-lo)/sp*20;d+=(pen?"L":"M")+X.toFixed(1)+","+Y.toFixed(1);pen=true});
+  return `<svg viewBox="0 0 100 26" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function ring(pct,color,big,unit,label,zoneTxt){
+  const r=52,c=2*Math.PI*r,p=clamp(pct||0,0,1);
+  return `<div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(c*p).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 60 60)"/></svg><div class="v"><b>${big}</b><span>${unit}</span></div><div class="lbl">${label}</div><div class="zone">${zoneTxt||"&nbsp;"}</div></div>`;
+}
+
+// ---------- render: today ----------
+function selDates(){return S.comp.map(c=>c.date)}
+function renderToday(){
+  const ds=selDates();
+  if(!ds.length){$("dayLabel").innerHTML="No data yet";$("rings").innerHTML="";return}
+  if(!S.sel||!S.compMap[S.sel])S.sel=ds[ds.length-1];
+  const i=ds.indexOf(S.sel), c=S.compMap[S.sel];
+  $("prevDay").disabled=i<=0;$("nextDay").disabled=i>=ds.length-1;
+  $("dayLabel").innerHTML=dayName(S.sel)+`<small>${S.sel===ymd(new Date())?"Today":c.src==="demo"?"Demo":""}</small>`;
+  const z=zone(c.recovery);
+  const zc=z?`var(--${z})`:"var(--line)";
+  $("rings").innerHTML=
+    ring(c.recovery/100,zc,c.recovery!==null?c.recovery+"%":"—","",
+      "Recovery",z?`<span class="statusdot" style="background:${zc}"></span>${ZONE_NAME[z]}${c.calibrating&&c.recSrc==="calculated"?" · calibrating":""}`:"needs HRV")+
+    ring(c.strain/21,"var(--s1)",c.strain!==null?fmt(c.strain,1):"—","of 21","Strain",c.strain===null?"needs activity":c.strain>=18?"All out":c.strain>=14?"Strenuous":c.strain>=10?"Moderate":"Light")+
+    ring(c.sleepPerf/100,"var(--s7)",c.sleepPerf!==null?c.sleepPerf+"%":"—","","Sleep",c.asleep!==null?hm(c.asleep):"needs sleep");
+  // strain coach
+  let tgt=null;
+  if(z==="good")tgt=[14,18];else if(z==="warn")tgt=[10,14];else if(z==="crit")tgt=[0,10];
+  const sc=$("strainCoach");
+  if(!tgt){sc.innerHTML=`<p class="small muted">Add HRV and resting HR for this morning to get a target.</p>`}
+  else{
+    const cur=c.strain||0;
+    sc.innerHTML=`<div class="row" style="justify-content:space-between;align-items:baseline"><div class="big">${tgt[0]}–${tgt[1]}</div><div class="small muted">so far ${fmt(c.strain,1)}</div></div>
+      <div class="bar-track" style="margin:10px 0 6px"><div class="bar-fill" style="width:${cur/21*100}%;background:var(--s1)"></div><div class="target" style="left:${tgt[0]/21*100}%;width:${(tgt[1]-tgt[0])/21*100}%"></div></div>
+      <p class="small" style="color:var(--text-secondary);margin:6px 0 0">${z==="good"?"You're well recovered. A hard session or a heavy lift day fits.":z==="warn"?"Moderately recovered. Train, but keep the intensity in check.":"Low recovery. Go easy: mobility, a walk, light technique work, and sleep early."}${cur>=tgt[1]?" You've reached the target, so anything more adds fatigue.":""}</p>`;
+  }
+  // sleep plan
+  const need=(num(S.settings.sleepBase)||7.75)*60+Math.max(0,(c.strain||0)-10)*0.08*60+0.5*(c.debt||0);
+  const wt=minsOfDay(S.settings.wakeTime)||420;
+  const latency=15;
+  const bed=wt-need-latency;
+  $("sleepPlan").innerHTML=`<dl class="kv"><dt>Need tonight</dt><dd>${hm(need)}</dd><dt>In bed by</dt><dd>${clock(bed)} <span class="muted small">to wake at ${clock(wt)}</span></dd><dt>Sleep debt</dt><dd>${hm(c.debt||0)}</dd><dt>Strain adds</dt><dd>${hm(Math.max(0,(c.strain||0)-10)*0.08*60)}</dd></dl>`;
+  // tiles
+  const win=S.comp.slice(Math.max(0,i-13),i+1);
+  const base30=S.comp.slice(Math.max(0,i-30),i);
+  const bl=k=>{const a=base30.map(o=>o[k]).filter(v=>v!==null&&isFinite(v));return a.length>=3?mean(a):null};
+  const tile=(k,label,unit,dec,goodDir,color)=>{
+    const v=c[k],b=bl(k);let dl="baseline building";
+    if(k==="skinDelta"&&v!==null){dl=v>0.5?"running warm":v<-0.5?"running cool":"within your norm"}
+    else if(v!==null&&b!==null){const d=v-b;const better=goodDir===0?null:(d*goodDir>0);dl=(d>=0?"+":"")+fmt(d,dec)+" vs "+fmt(b,dec)+(better===null?"":better?" ↑ better":" ↓ worse")}
+    return `<div class="tile"><div class="k">${label}</div><div class="n">${fmt(v,dec)}<small>${unit}</small></div><div class="delta">${v===null?"no reading":dl}</div>${spark(win.map(o=>o[k]),color)}</div>`;
+  };
+  $("tiles").innerHTML=tile("hrv","HRV","ms",0,1,"var(--s1)")+tile("rhr","Resting HR","bpm",1,-1,"var(--s2)")+tile("resp","Respiratory rate","rpm",1,0,"var(--s3)")+tile("spo2","Blood oxygen","%",1,0,"var(--s7)")+tile("skinDelta","Skin temp vs baseline","°C",2,0,"var(--s4)")+
+    `<div class="tile"><div class="k">Activity</div><div class="n">${c.activeKcal!==null?fmt(c.activeKcal):fmt(c.kcal)}<small>kcal</small></div><div class="delta">${c.steps!==null?Math.round(c.steps).toLocaleString()+" steps":"&nbsp;"}</div>${spark(win.map(o=>o.activeKcal!==null?o.activeKcal:o.kcal),"var(--s1)")}</div>`;
+  const w=c.workouts||[];
+  $("workouts").innerHTML=w.length?`<table class="t"><tr><th>Activity</th><th>Time</th><th>Avg HR</th><th>Strain</th></tr>${w.map(x=>`<tr><td>${esc(x.type||"Workout")}</td><td>${x.durMin?Math.round(x.durMin)+" min":"—"}</td><td>${fmt(x.avgHr)}</td><td>${fmt(x.calcStrain,1)}</td></tr>`).join("")}</table>`:`<span class="muted">No workouts logged for this day.</span>`;
+}
+
+// ---------- render: trends ----------
+function rangeItems(){
+  const ds=selDates();if(!ds.length)return [];
+  const end=ds[ds.length-1];const start=addDays(end,-(S.range-1));
+  const out=[];for(let d=start;d<=end;d=addDays(d,1))out.push(S.compMap[d]||{date:d,missing:true});
+  return out;
+}
+function renderTrends(){
+  const it=rangeItems();const L=it.map(o=>short(o.date));
+  $("rangeNote").textContent=it.length?dayName(it[0].date)+" – "+dayName(it[it.length-1].date):"";
+  barChart($("cRecovery"),it.map(o=>({label:short(o.date),value:o.recovery??null,color:o.recovery!=null?`var(--${zone(o.recovery)})`:"none",tip:dayName(o.date)+"\nRecovery: "+(o.recovery!=null?o.recovery+"% ("+ZONE_NAME[zone(o.recovery)]+")":"no data")})),{yMax:100,ticks:[0,33,67,100],refs:[]});
+  const hrv=it.map(o=>o.hrv??null);
+  const avg=hrv.map((_,i)=>{const w=hrv.slice(Math.max(0,i-6),i+1).filter(v=>v!==null);return w.length>=3?mean(w):null});
+  lineChart($("cHrv"),L,[{name:"HRV",values:hrv,color:"var(--s1)",dots:true},{name:"7-day avg",values:avg,color:"var(--s2)",dash:true}],{tips:it.map((o,i)=>dayName(o.date)+"\nHRV: "+fmt(hrv[i])+" ms\n7-day avg: "+fmt(avg[i])+" ms")});
+  lineChart($("cRhr"),L,[{name:"Resting HR",values:it.map(o=>o.rhr??null),color:"var(--s2)",dots:true,dec:1}],{tips:it.map(o=>dayName(o.date)+"\nResting HR: "+fmt(o.rhr,1)+" bpm")});
+  barChart($("cStrain"),it.map(o=>({label:short(o.date),value:o.strain??null,color:"var(--s1)",tip:dayName(o.date)+"\nStrain: "+fmt(o.strain,1)+((o.workouts||[]).length?"\n"+o.workouts.map(w=>w.type).join(", "):"")})),{yMax:21,ticks:[0,7,14,21]});
+  // load
+  const ds=S.comp;const last=ds.slice(-28);const a7=last.slice(-7).map(o=>o.strain).filter(v=>v!=null),a28=last.map(o=>o.strain).filter(v=>v!=null);
+  const ra=a7.length>=4&&a28.length>=10?mean(a7)/mean(a28):null;
+  $("load").innerHTML=ra===null?`<p class="small muted">Needs about 10 days of strain.</p>`:`<div class="big">${fmt(ra,2)}</div><p class="small" style="color:var(--text-secondary);margin:4px 0 0">7-day avg ${fmt(mean(a7),1)} vs 28-day avg ${fmt(mean(a28),1)}. ${ra>1.5?"<b>Sharp spike.</b> Injury and illness risk rises here, so add an easy day.":ra>1.3?"Building fast. Watch recovery over the next few days.":ra>=0.8?"In the productive range.":"Lighter than usual: fine for a deload, otherwise you're losing fitness stimulus."}</p>`;
+  // correlations
+  const pairsS=[],pairsT=[];
+  it.forEach((o,i)=>{if(o.recovery!=null&&o.asleep!=null)pairsS.push([o.asleep/60,o.recovery]);const p=it[i-1];if(p&&o.recovery!=null&&p.strain!=null)pairsT.push([p.strain,o.recovery])});
+  const r1=pearson(pairsS.map(p=>p[0]),pairsS.map(p=>p[1])),r2=pearson(pairsT.map(p=>p[0]),pairsT.map(p=>p[1]));
+  const word=r=>r===null?"not enough data":Math.abs(r)<0.15?"little link":Math.abs(r)<0.35?(r>0?"weak positive":"weak negative"):Math.abs(r)<0.6?(r>0?"moderate positive":"moderate negative"):(r>0?"strong positive":"strong negative");
+  $("corr").innerHTML=`<dl class="kv"><dt>Sleep → same-day recovery</dt><dd>r = ${fmt(r1,2)} <span class="muted small">${word(r1)}</span></dd><dt>Strain → next-day recovery</dt><dd>r = ${fmt(r2,2)} <span class="muted small">${word(r2)}</span></dd></dl><p class="small muted" style="margin:8px 0 0">Based on ${pairsS.length} and ${pairsT.length} day pairs. Correlation shows a pattern, not proof of cause.</p>`;
+  // table
+  $("trendTable").innerHTML=`<table class="t"><tr><th>Date</th><th>Recovery</th><th>HRV</th><th>RHR</th><th>Sleep</th><th>Sleep %</th><th>Strain</th></tr>${it.slice().reverse().filter(o=>!o.missing).map(o=>`<tr><td>${dayName(o.date)}</td><td>${o.recovery!=null?o.recovery+"%":"—"}</td><td>${fmt(o.hrv)}</td><td>${fmt(o.rhr,1)}</td><td>${hm(o.asleep)}</td><td>${o.sleepPerf!=null?o.sleepPerf+"%":"—"}</td><td>${fmt(o.strain,1)}</td></tr>`).join("")}</table>`;
+}
+
+// ---------- render: sleep ----------
+function renderSleep(){
+  const it=rangeItems();const ds=selDates();
+  const c=S.compMap[S.sel||ds[ds.length-1]];
+  if(!c){$("lastNight").innerHTML=`<p class="muted small">No sleep data yet.</p>`;return}
+  const eff=c.inBed&&c.asleep?Math.round(c.asleep/c.inBed*100):null;
+  $("lastNight").innerHTML=`<div class="big">${hm(c.asleep)}</div><p class="small muted" style="margin:0 0 8px">${dayName(c.date)} · ${c.sleepPerf!=null?c.sleepPerf+"% of "+hm(c.need)+" needed":""}</p><dl class="kv">
+    <dt>Bed → wake</dt><dd>${c.onsetMin!=null?clock(c.onsetMin):"—"} → ${c.wakeMin!=null?clock(c.wakeMin):"—"}</dd>
+    <dt>Deep</dt><dd>${hm(c.deep)}</dd><dt>REM</dt><dd>${hm(c.rem)}</dd><dt>Light</dt><dd>${hm(c.light)}</dd><dt>Awake</dt><dd>${hm(c.awake)}</dd><dt>Efficiency</dt><dd>${eff!=null?eff+"%":"—"}</dd>
+    <dt>Respiratory rate</dt><dd>${fmt(c.resp,1)} rpm</dd></dl>`;
+  // consistency
+  const i=ds.indexOf(c.date);const last4=S.comp.slice(Math.max(0,i-3),i+1);
+  const on=last4.map(o=>o.onsetMin).filter(v=>v!=null).map(v=>v<720?v+1440:v), wk=last4.map(o=>o.wakeMin).filter(v=>v!=null);
+  let cons=null;if(on.length>=3&&wk.length>=3)cons=Math.round(clamp(100-((sd(on)+sd(wk))/2)*1.1,0,100));
+  $("consistency").innerHTML=`<dl class="kv"><dt>Consistency (4 nights)</dt><dd>${cons!=null?cons+"%":"needs bed and wake times"}</dd><dt>Debt carried</dt><dd>${hm(c.debt)}</dd><dt>30-day avg sleep</dt><dd>${hm(mean(S.comp.slice(-30).map(o=>o.asleep).filter(v=>v!=null)))}</dd></dl><p class="small muted" style="margin:8px 0 0">${cons==null?"":cons>=80?"Steady schedule, which helps HRV.":cons>=65?"Fairly steady. Keeping bedtime within 30 minutes helps.":"Bed and wake times jump around. Anchoring your wake time is the fastest fix."}</p>`;
+  stackChart($("cStages"),it.map(o=>({label:short(o.date),deep:(o.deep||0)/60,rem:(o.rem||0)/60,light:(o.light||0)/60,awake:(o.awake||0)/60,tip:dayName(o.date)+"\nDeep "+hm(o.deep)+"\nREM "+hm(o.rem)+"\nLight "+hm(o.light)+"\nAwake "+hm(o.awake)})),
+    [{k:"deep",c:"var(--s1)"},{k:"rem",c:"var(--s2)"},{k:"light",c:"var(--s3)"},{k:"awake",c:"var(--s4)"}]);
+  barChart($("cSleepPerf"),it.map(o=>({label:short(o.date),value:o.sleepPerf??null,color:"var(--s7)",tip:dayName(o.date)+"\nSleep performance: "+(o.sleepPerf!=null?o.sleepPerf+"%":"—")+"\nAsleep "+hm(o.asleep)+" of "+hm(o.need)})),{yMax:100,ticks:[0,50,85,100],refs:[{v:85}]});
+}
+
+// ---------- render: data ----------
+function renderData(){
+  const ds=Object.keys(S.days).sort().reverse();
+  $("storedSub").textContent=S.demo?"Nothing stored yet. The dashboard is showing demo data.":ds.length+" days stored "+(S.store==="db"?"in this page's private database (only you can read it)":"in this browser only");
+  $("storedTable").innerHTML=S.demo||!ds.length?"":`<table class="t"><tr><th>Date</th><th>Source</th><th>HRV</th><th>RHR</th><th>Sleep</th><th>Workouts</th><th></th></tr>${ds.slice(0,120).map(k=>{const d=S.days[k];const c=S.compMap[k]||{};return `<tr><td>${dayName(k)}</td><td>${esc(d.source||"")}</td><td>${fmt(c.hrv)}</td><td>${fmt(c.rhr,1)}</td><td>${hm(c.asleep)}</td><td>${(d.workouts||[]).length}</td><td><button class="btn small" data-del="${k}" style="padding:3px 8px">✕</button></td></tr>`}).join("")}</table>`;
+  const f=$("settingsForm");["age","maxHr","sleepBase","wakeTime","goal"].forEach(k=>{if(document.activeElement!==f[k])f[k].value=S.settings[k]??""});
+  if(!$("manual").date.value)$("manual").date.value=ymd(new Date());
+}
+
+// ---------- apply ----------
+function buildSource(){
+  let band={};try{band=deriveBand()}catch(e){console.error(e)}
+  S.bandDays=band;
+  const out={};
+  for(const [d,v] of Object.entries(band))out[d]=Object.assign({},v);
+  for(const [d,v] of Object.entries(S.days)){
+    const cur=out[d]||{};const w=(cur.workouts||[]).concat(v.workouts||[]);
+    out[d]=Object.assign(cur,v);if(w.length)out[d].workouts=w;
+    if(cur.source==="band"&&v.source&&v.source!=="band")out[d].source="band+"+v.source;
+  }
+  return out;
+}
+function applyData(){
+  const src=buildSource();
+  const real=Object.keys(src).length>0;
+  S.demo=!real;
+  if(!real&&!S.demoData)S.demoData=demoDays();
+  S.src=real?src:S.demoData;
+  compute(S.src);
+  $("demoBanner").classList.toggle("hide",!S.demo);
+  setPill();
+  render();
+}
+function render(){
+  if(S.view==="today")renderToday();
+  if(S.view==="trends")renderTrends();
+  if(S.view==="sleep")renderSleep();
+  if(S.view==="data")renderData();
+  if(S.view==="band")renderBand();
+}
+
+// ---------- band: Web Bluetooth recorder ----------
+const BAND={dev:null,status:"idle",buckets:{},dirty:new Set(),lastRR:null,liveRR:[],hr:null,bat:null,lastFlush:null,flushing:false,retry:0,manualStop:false,lastUi:0};
+function bleSupport(){
+  if(!("bluetooth" in navigator))return {ok:false,why:"This browser can't use Bluetooth. Open this page in Chrome or Edge on your laptop."};
+  try{const pp=document.permissionsPolicy||document.featurePolicy;if(pp&&pp.allowsFeature&&!pp.allowsFeature("bluetooth"))return {ok:false,why:"Bluetooth is blocked inside this page's frame."}}catch(e){}
+  return {ok:true};
+}
+function setBandStatus(t){BAND.statusText=t;const el=$("bandStatus");if(el)el.textContent=t}
+function onHrValue(ev){
+  const dv=ev.target.value;const fl=dv.getUint8(0);let i=1;
+  const hr=(fl&1)?dv.getUint16(i,true):dv.getUint8(i);i+=(fl&1)?2:1;
+  if(fl&8)i+=2;
+  const rr=[];if(fl&16)while(i+1<dv.byteLength){rr.push(dv.getUint16(i,true)/1024*1000);i+=2}
+  const now=new Date();const date=ymd(now);const m=now.getHours()*60+now.getMinutes();
+  const day=BAND.buckets[date]||(BAND.buckets[date]={});
+  const b=day[m]||(day[m]={s:0,n:0,rrN:0,sq:0,nd:0});
+  if(hr>25&&hr<230){b.s+=hr;b.n++;BAND.hr=hr}
+  rr.forEach(r=>{
+    if(r<300||r>2000){BAND.lastRR=null;return}
+    const L=BAND.lastRR;
+    if(L&&Math.abs(r-L)<200&&Math.abs(r-L)/L<0.2){b.sq+=(r-L)*(r-L);b.nd++;BAND.liveRR.push((r-L)*(r-L));if(BAND.liveRR.length>80)BAND.liveRR.shift()}
+    b.rrN++;BAND.lastRR=r;
+  });
+  BAND.dirty.add(date);
+  const t=Date.now();if(t-BAND.lastUi>1000){BAND.lastUi=t;liveUi()}
+}
+function liveUi(){
+  if(!$("liveHr"))return;
+  $("liveHr").textContent=BAND.hr?BAND.hr+" bpm":"—";
+  $("liveHrv").textContent=BAND.liveRR.length>20?Math.round(Math.sqrt(mean(BAND.liveRR)))+" ms":"—";
+  $("liveBat").textContent=BAND.bat!=null?BAND.bat+"%":"—";
+}
+function mergeRows(stored,buckets){
+  const map=new Map();(stored||[]).forEach(r=>map.set(r[0],r));
+  for(const [m,b] of Object.entries(buckets||{})){if(!b.n&&!b.rrN)continue;map.set(+m,[+m,b.n?Math.round(b.s/b.n*10)/10:null,b.rrN,Math.round(b.sq),b.nd])}
+  return [...map.values()].sort((a,c)=>a[0]-c[0]);
+}
+async function flushBand(){
+  if(BAND.flushing||!BAND.dirty.size)return;BAND.flushing=true;
+  try{
+    for(const date of [...BAND.dirty]){
+      BAND.dirty.delete(date);
+      const rows=mergeRows(S.minutes[date],BAND.buckets[date]);
+      S.minutes[date]=rows;
+      if(S.db){try{await S.db.collection("minutes").doc(date).set({date,rows,updated:new Date().toISOString()})}catch(e){BAND.dirty.add(date);if(e&&e.code==="quota_exceeded")setBandStatus("Storage is full; recording continues in memory only.")}}
+      else lsSet(LS_MIN,S.minutes);
+    }
+    const today=ymd(new Date()),yest=addDays(today,-1);
+    Object.keys(BAND.buckets).forEach(d=>{if(d<yest&&!BAND.dirty.has(d))delete BAND.buckets[d]});
+    BAND.lastFlush=new Date();
+  }finally{BAND.flushing=false}
+  applyData();
+}
+setInterval(flushBand,90000);
+window.addEventListener("pagehide",flushBand);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushBand()});
+async function gattConnect(){
+  const dev=BAND.dev;if(!dev)return;
+  setBandStatus("Connecting to "+(dev.name||"band")+"…");
+  const server=await dev.gatt.connect();
+  const svc=await server.getPrimaryService("heart_rate");
+  const ch=await svc.getCharacteristic("heart_rate_measurement");
+  ch.addEventListener("characteristicvaluechanged",onHrValue);
+  await ch.startNotifications();
+  BAND.retry=0;BAND.status="on";
+  setBandStatus("Recording from "+(dev.name||"band")+". Keep this tab open.");
+  $("bandStop").classList.remove("hide");$("bandConnect").classList.add("hide");$("bandAll").classList.add("hide");
+  try{const bs=await server.getPrimaryService("battery_service");const bc=await bs.getCharacteristic("battery_level");BAND.bat=(await bc.readValue()).getUint8(0);
+    try{bc.addEventListener("characteristicvaluechanged",e=>{BAND.bat=e.target.value.getUint8(0)});await bc.startNotifications()}catch(e){}}catch(e){}
+  try{if(navigator.wakeLock)BAND.lock=await navigator.wakeLock.request("screen")}catch(e){}
+  liveUi();
+}
+function onDisconnect(){
+  BAND.status="off";flushBand();
+  if(BAND.manualStop){setBandStatus("Disconnected.");return}
+  BAND.retry++;const wait=Math.min(30,2*BAND.retry);
+  setBandStatus("Band out of range or busy. Retrying in "+wait+"s (attempt "+BAND.retry+")…");
+  setTimeout(()=>{if(BAND.manualStop||BAND.status==="on")return;gattConnect().catch(()=>onDisconnect())},wait*1000);
+}
+async function connectBand(all){
+  const sup=bleSupport();if(!sup.ok){setBandStatus(sup.why);return}
+  BAND.manualStop=false;
+  try{
+    const opts=all?{acceptAllDevices:true,optionalServices:["heart_rate","battery_service"]}:{filters:[{namePrefix:"WHOOP"},{namePrefix:"Whoop"},{services:["heart_rate"]}],optionalServices:["heart_rate","battery_service"]};
+    BAND.dev=await navigator.bluetooth.requestDevice(opts);
+    BAND.dev.addEventListener("gattserverdisconnected",onDisconnect);
+    await gattConnect();
+  }catch(e){
+    const msg=String(e&&e.message||e);
+    if(/cancel/i.test(msg))setBandStatus("No band picked. Tap Connect band and choose your WHOOP from the list.");
+    else if(/heart_rate|No Services|not found|getPrimaryService/i.test(msg))setBandStatus("Connected, but the band isn't sharing heart rate. If you have the WHOOP app, turn on Broadcast Heart Rate, then try again. ("+msg+")");
+    else if(/permission|policy|SecurityError|disallowed/i.test(msg))setBandStatus("Bluetooth is blocked here: "+msg);
+    else setBandStatus("Couldn't connect: "+msg);
+  }
+}
+$("bandConnect").onclick=()=>connectBand(false);
+$("bandAll").onclick=()=>connectBand(true);
+$("bandStop").onclick=async()=>{BAND.manualStop=true;try{BAND.dev&&BAND.dev.gatt.disconnect()}catch(e){}await flushBand();$("bandStop").classList.add("hide");$("bandConnect").classList.remove("hide");$("bandAll").classList.remove("hide");setBandStatus("Disconnected. Data so far is saved.")};
+
+function deriveBand(){
+  const dates=Object.keys(S.minutes||{}).filter(d=>(S.minutes[d]||[]).length).sort();
+  if(!dates.length)return {};
+  const base=parseYmd(dates[0]);
+  const idx=d=>Math.round((parseYmd(d)-base)/86400000);
+  const all=new Map();
+  dates.forEach(d=>{const off=idx(d)*1440;S.minutes[d].forEach(r=>all.set(off+r[0],r))});
+  const isoOf=abs=>{const t=new Date(base);t.setDate(t.getDate()+Math.floor(abs/1440));t.setMinutes(((abs%1440)+1440)%1440);return t.toISOString()};
+  const mhr=maxHr();const out={};const sleepRuns=[];
+  const allHr=[];all.forEach(r=>{if(r[1]!=null)allHr.push(r[1])});allHr.sort((x,y)=>x-y);
+  const gMed=allHr[Math.floor(allHr.length/2)];
+  const wakeDates=new Set(dates);dates.forEach(d=>wakeDates.add(addDays(d,1)));
+  for(const D of [...wakeDates].sort()){
+    const k=idx(D)*1440,a=k-360,len=1200;
+    const hr=new Array(len).fill(null);let present=[];
+    for(let i=0;i<len;i++){const r=all.get(a+i);if(r&&r[1]!=null){hr[i]=r[1];present.push(r[1])}}
+    if(present.length<120)continue;
+    present.sort((x,y)=>x-y);
+    const est=present[Math.floor(present.length*0.05)];
+    const thr=est+Math.max(10,est*0.15);
+    const q=new Array(len).fill(false);
+    for(let i=0;i<len;i++){if(hr[i]==null)continue;let s=0,n=0;for(let j=Math.max(0,i-7);j<=Math.min(len-1,i+7);j++)if(hr[j]!=null){s+=hr[j];n++}q[i]=s/n<=thr}
+    let best=null,cur=null,lastQ=-1;
+    for(let i=0;i<=len;i++){
+      if(i<len&&q[i]){if(cur===null)cur=i;lastQ=i}
+      else if(cur!==null&&(i===len||i-lastQ>20)){if(!best||lastQ-cur>best.e-best.s)best={s:cur,e:lastQ};cur=null}
+    }
+    if(!best||best.e-best.s<120)continue;
+    const overlapNight=Math.max(0,Math.min(best.e,720)-Math.max(best.s,360));
+    if(overlapNight<60)continue;
+    let awake=0;const sl=[];
+    for(let i=best.s;i<=best.e;i++){if(hr[i]==null)continue;if(q[i])sl.push(hr[i]);else awake++}
+    if(!sl.length||mean(sl)>gMed-8)continue;
+    sl.sort((x,y)=>x-y);
+    const rhr=sl.length?Math.round(mean(sl.slice(0,Math.max(5,Math.floor(sl.length*0.2))))*10)/10:null;
+    let sq=0,nd=0;for(let i=Math.max(best.s,best.e-180);i<=best.e-10;i++){const r=all.get(a+i);if(r){sq+=r[3]||0;nd+=r[4]||0}}
+    const hrv=nd>=150?Math.round(Math.sqrt(sq/nd)):null;
+    const inBed=best.e-best.s+1;
+    out[D]={date:D,source:"band",rhr,hrv,asleepMin:inBed-awake,inBedMin:inBed,awakeMin:awake,onset:isoOf(a+best.s),wake:isoOf(a+best.e)};
+    sleepRuns.push([a+best.s,a+best.e]);
+  }
+  const inSleep=abs=>sleepRuns.some(r=>abs>=r[0]&&abs<=r[1]);
+  const rhrs=Object.values(out).map(o=>o.rhr).filter(v=>v!=null);
+  const rhrRef=rhrs.length?mean(rhrs):60;
+  for(const D of dates){
+    const k=idx(D)*1440;let t=0,cov=0;
+    for(let i=0;i<1440;i++){const r=all.get(k+i);if(!r||r[1]==null)continue;cov++;if(inSleep(k+i))continue;const ref=(out[D]&&out[D].rhr)||rhrRef;const x=clamp((r[1]-ref)/(mhr-ref),0,1);if(x>=0.3)t+=x*0.64*Math.exp(1.92*x)}
+    if(cov>=60){out[D]=out[D]||{date:D,source:"band"};out[D].strain=Math.round(strainFromTrimp(t)*10)/10;out[D].bandCoverageMin=cov}
+  }
+  return out;
+}
+function renderBand(){
+  const sup=bleSupport();
+  $("bandSupport").textContent=sup.ok?"Bluetooth is available. Wear your band, then tap Connect band and pick your WHOOP.":sup.why;
+  $("bandConnect").disabled=!sup.ok;$("bandAll").disabled=!sup.ok;
+  if(BAND.statusText)$("bandStatus").textContent=BAND.statusText;
+  liveUi();
+  const today=ymd(new Date());
+  const rows=mergeRows(S.minutes[today],BAND.buckets[today]);
+  const cov=rows.filter(r=>r[1]!=null).length;
+  const days=Object.keys(S.minutes||{}).length;
+  $("bandCoverage").textContent=hm(cov)+" of heart rate recorded today"+(days?" · "+days+" day"+(days>1?"s":"")+" stored":"")+(BAND.lastFlush?" · last saved "+BAND.lastFlush.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}):"");
+  if(!cov){empty($("cLiveHr"),"Nothing recorded yet today.");return}
+  const by5=new Array(288).fill(null).map(()=>[0,0]);
+  rows.forEach(r=>{if(r[1]!=null){const b=by5[Math.floor(r[0]/5)];b[0]+=r[1];b[1]++}});
+  const vals=by5.map(b=>b[1]?b[0]/b[1]:null);
+  const labels=by5.map((_,i)=>clock(i*5));
+  lineChart($("cLiveHr"),labels,[{name:"Heart rate",values:vals,color:"var(--s2)"}],{h:160,pad:0.05,labelStep:72,tips:vals.map((v,i)=>labels[i]+"\n"+(v!=null?Math.round(v)+" bpm":"no data"))});
+}
+
+// ---------- routing ----------
+const VIEWS=["today","band","trends","sleep","coach","data","how"];
+function route(){
+  const h=(location.hash||"").replace("#","");S.view=VIEWS.includes(h)?h:"today";
+  VIEWS.forEach(v=>$("v-"+v).classList.toggle("hide",v!==S.view));
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===S.view));
+  render();
+}
+window.addEventListener("hashchange",route);
+let rt;window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(render,150)});
+
+// ---------- events ----------
+$("prevDay").onclick=()=>{const ds=selDates();const i=ds.indexOf(S.sel);if(i>0){S.sel=ds[i-1];renderToday()}};
+$("nextDay").onclick=()=>{const ds=selDates();const i=ds.indexOf(S.sel);if(i<ds.length-1){S.sel=ds[i+1];renderToday()}};
+$("rangeSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.range=+b.dataset.r;[...$("rangeSeg").children].forEach(x=>x.classList.toggle("on",x===b));render()};
+
+async function handleFiles(files){
+  const log=[];const target={};
+  for(const f of files){
+    const text=await f.text();
+    if(/\.json$/i.test(f.name)||/^\s*[\[{]/.test(text))importJSON(text,f.name,target,log);
+    else importCSV(text,f.name,target,log);
+  }
+  const n=Object.keys(target).length;
+  if(!n&&BAND.forceFlush){BAND.forceFlush=false;$("importLog").textContent=log.join("\n")+"\nSaving band minutes…";await flushBand();$("importLog").textContent=log.join("\n")+"\nSaved. Open Today to see your scores.";return}
+  if(!n){$("importLog").textContent=log.join("\n")+"\nNothing to save.";return}
+  $("importLog").textContent=log.join("\n")+"\nSaving "+n+" days…";
+  try{
+    await writeDays(target,(d,t)=>{$("importLog").textContent=log.join("\n")+"\nSaving "+d+" / "+t+" days…"});
+    $("importLog").textContent=log.join("\n")+"\nSaved "+n+" days. Open Today to see your scores.";
+    if(BAND.forceFlush){BAND.forceFlush=false;await flushBand()}
+  }catch(e){$("importLog").textContent=log.join("\n")+"\nStopped: the page's storage is full ("+(e.message||e.code)+"). Delete older days and try again."}
+}
+const drop=$("drop"),fileIn=$("file");
+drop.onclick=()=>fileIn.click();
+fileIn.onchange=()=>{if(fileIn.files.length)handleFiles([...fileIn.files]);fileIn.value=""};
+drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("over")});
+drop.addEventListener("dragleave",()=>drop.classList.remove("over"));
+drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("over");if(e.dataTransfer.files.length)handleFiles([...e.dataTransfer.files])});
+
+const TEMPLATE="date,hrv,rhr,resp,spo2,sleep_hours,deep_min,rem_min,light_min,awake_min,bedtime,wake_time,active_kcal,steps,workout_type,workout_min,workout_avg_hr\n"+ymd(new Date())+",62,57,14.6,97,7.4,82,101,231,30,23:10,07:05,560,9100,Lifting,60,124\n";
+$("copyTpl").onclick=async()=>{try{await navigator.clipboard.writeText(TEMPLATE);$("copyMsg").textContent="Copied. Paste into a sheet, fill it in, save as CSV, import."}catch(e){$("copyMsg").textContent="Couldn't copy here. Columns: "+TEMPLATE.split("\n")[0]}};
+function exportBlob(){return JSON.stringify({type:"recovery-lab-export",version:1,exported:new Date().toISOString(),days:S.days,minutes:S.minutes,settings:S.settings})}
+$("dlData").onclick=()=>{
+  try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([exportBlob()],{type:"application/json"}));a.download="recovery-lab-"+ymd(new Date())+".json";document.body.appendChild(a);a.click();a.remove();$("dataMsg").textContent="Backup downloaded. Upload it on the Claude page's Data tab to sync."}
+  catch(e){$("dataMsg").textContent="Downloads aren't allowed here. Use Copy instead."}
+};
+$("copyData").onclick=async()=>{try{await navigator.clipboard.writeText(exportBlob());$("dataMsg").textContent="Copied "+Object.keys(S.days).length+" days."}catch(e){$("dataMsg").textContent="Couldn't copy here."}};
+let clearArm=false;
+$("clearAll").onclick=async()=>{
+  if(!clearArm){clearArm=true;$("clearAll").textContent="Tap again to delete everything";setTimeout(()=>{clearArm=false;$("clearAll").textContent="Delete all data"},4000);return}
+  clearArm=false;$("clearAll").textContent="Deleting…";
+  const ks=Object.keys(S.days);
+  if(S.db){for(const k of ks){try{await S.db.collection("days").doc(k).delete()}catch(e){}}}
+  else{S.days={};lsSet(LS_DAYS,{});applyData()}
+  $("clearAll").textContent="Delete all data";$("dataMsg").textContent="Deleted "+ks.length+" days.";
+};
+$("storedTable").onclick=e=>{const b=e.target.closest("[data-del]");if(b)deleteDay(b.dataset.del)};
+
+$("manual").onsubmit=async e=>{
+  e.preventDefault();const f=e.target;const date=f.date.value;if(!date)return;
+  const g=k=>num(f[k].value);
+  const fields={source:"manual",hrv:g("hrv"),rhr:g("rhr"),sleepHours:g("sleepHours"),resp:g("resp"),spo2:g("spo2"),activeKcal:g("activeKcal")};
+  if(f.bed.value)fields.onset=f.bed.value; if(f.wakeT.value)fields.wake=f.wakeT.value;
+  const ws=g("wDur")?[{type:f.wType.value||"Workout",start:date+"T12:00",durMin:g("wDur"),avgHr:g("avgHr")}]:[];
+  const t={};mergeInto(t,date,fields,ws);
+  await writeDays(t);
+  $("manualMsg").textContent="Saved "+dayName(date)+".";S.sel=date;
+  ["hrv","rhr","sleepHours","resp","spo2","activeKcal","wDur","avgHr","wType","bed","wakeT"].forEach(k=>f[k].value="");
+};
+$("settingsForm").onsubmit=async e=>{
+  e.preventDefault();const f=e.target;
+  S.settings={age:num(f.age.value)||24,maxHr:num(f.maxHr.value),sleepBase:num(f.sleepBase.value)||7.75,wakeTime:f.wakeTime.value||"07:00",goal:f.goal.value||""};
+  await saveSettings();$("setMsg").textContent="Saved.";compute();render();
+};
+
+// ---------- coach ----------
+let sample=null, chatMsgs=[], busy=false;
+function dataSummary(){
+  const rows=S.comp.slice(-14).map(o=>[o.date,o.recovery,o.hrv,o.rhr,o.resp,o.asleep!=null?(o.asleep/60).toFixed(1):"",o.sleepPerf,o.debt!=null?Math.round(o.debt):"",o.strain,(o.workouts||[]).map(w=>w.type+(w.durMin?" "+Math.round(w.durMin)+"m":"")+(w.avgHr?" @"+Math.round(w.avgHr):"")).join("; ")].map(v=>v==null?"":v).join(","));
+  const b=S.comp.slice(-30);const m=k=>fmt(mean(b.map(o=>o[k]).filter(v=>v!=null)),1);
+  return `Goal: ${S.settings.goal||"general fitness"}. Age ${S.settings.age}. Max HR ${maxHr()}. ${S.demo?"NOTE: this is DEMO data, not the user's real data; say so briefly.":""}
+30-day averages: recovery ${m("recovery")}%, HRV ${m("hrv")} ms, resting HR ${m("rhr")} bpm, sleep ${fmt(mean(b.map(o=>o.asleep).filter(v=>v!=null))/60,1)} h, strain ${m("strain")}.
+Last 14 days (date,recovery%,hrv_ms,rhr_bpm,resp_rpm,sleep_h,sleep_perf%,sleep_debt_min,strain_0_21,workouts):
+${rows.join("\n")}
+Today is ${ymd(new Date())}. Recovery zones: green 67-99, yellow 34-66, red 1-33. Strain targets: green 14-18, yellow 10-14, red under 10.`;
+}
+function addMsg(role,text){const d=document.createElement("div");d.className="msg "+(role==="user"?"u":"a");d.textContent=text;$("chat").appendChild(d);$("chat").scrollTop=1e9;return d}
+async function ask(q){
+  if(busy||!q.trim())return;
+  if(!sample){$("coachNote").textContent="The coach isn't available in this view.";return}
+  busy=true;$("askBtn").disabled=true;
+  addMsg("user",q);const out=addMsg("assistant","Thinking…");
+  const sys=`You are a concise strength and endurance coach reading the user's wearable data (WHOOP-style recovery, strain and sleep). Answer in plain text, no markdown headers, under 180 words. Lead with the answer, cite the specific numbers that drive it, and give concrete actions for today or this week. You are not a doctor: if something looks medically concerning (resting HR up 8+ bpm with HRV crashing for days, SpO2 under 94), suggest checking with a doctor.\n\nDATA:\n${dataSummary()}`;
+  const msgs=chatMsgs.length?chatMsgs.concat([{role:"user",content:q}]):[{role:"user",content:sys+"\n\nQUESTION: "+q}];
+  try{
+    const r=await sample(msgs,{cache:false,onText:({text})=>{out.textContent=text}});
+    out.textContent=r.text;
+    chatMsgs=msgs.concat([{role:"assistant",content:r.text}]);
+    if(chatMsgs.length>12)chatMsgs=[chatMsgs[0],chatMsgs[1]].concat(chatMsgs.slice(-8));
+  }catch(e){
+    out.textContent=e&&e.code==="rate_limited"?"Too many questions in a row. Try again in a minute.":e&&e.code==="not_granted"?"The coach needs permission to ask Claude.":"Couldn't reach Claude: "+(e&&e.message||"error");
+    if(e&&e.code==="not_granted"){$("chips").classList.add("hide")}
+  }
+  busy=false;$("askBtn").disabled=false;
+}
+$("askForm").onsubmit=e=>{e.preventDefault();const v=$("askIn").value;$("askIn").value="";ask(v)};
+$("chips").onclick=e=>{const b=e.target.closest("button");if(b)ask(b.textContent)};
+(async()=>{try{if(window.claude&&window.claude.use)sample=await window.claude.use("sample")}catch(e){}if(!sample){$("coachNote").textContent="Open this page on claude.ai to use the coach."}})();
+
+// ---------- boot ----------
+if(!STANDALONE)$("dlData").classList.add("hide");
+route();
+initStore();
+})();
+</script>
+</body>
+</html>
