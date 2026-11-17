@@ -285,6 +285,10 @@ table.t th{color:var(--text-muted);font-weight:500}
       <h2>Import data</h2>
       <p class="sub">Drop one or more files. Accepted: WHOOP export CSVs (physiological_cycles, sleeps, workouts), a JSON export from OpenWhoop or another band app, or any CSV with a date column.</p>
       <div class="drop" id="drop">Tap to choose files, or drop them here<input type="file" id="file" multiple accept=".csv,.json,.txt" class="hide"></div>
+      <div id="pasteWrap" style="margin-top:10px">
+        <textarea id="pasteBox" rows="2" placeholder="Or paste copied Recovery Lab data here" style="display:block;width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;resize:vertical"></textarea>
+        <div class="row" style="margin-top:6px"><button class="btn" id="pasteGo">Import pasted data</button><span class="small muted" id="pasteMsg"></span></div>
+      </div>
       <div class="log" id="importLog"></div>
       <div class="row" style="margin-top:10px">
         <button class="btn" id="copyTpl">Copy CSV template</button>
@@ -335,7 +339,7 @@ table.t th{color:var(--text-muted);font-weight:500}
       <p class="sub" id="storedSub"></p>
       <div class="row" style="margin-bottom:8px">
         <button class="btn" id="dlData">Download backup</button>
-        <button class="btn primary" id="syncClaude">Sync to Claude</button>
+        <button class="btn primary" id="syncClaude">Copy data for Claude</button>
         <button class="btn" id="dlWhoop">Export WHOOP-format CSV (.zip)</button>
         <button class="btn" id="copyData">Copy all data as JSON</button>
         <button class="btn danger" id="clearAll">Delete all data</button>
@@ -1293,6 +1297,13 @@ async function handleFiles(files){
     say("Stopped: "+why);return {ok:false,error:why};
   }
 }
+$("pasteBox").addEventListener("input",()=>{const n=$("pasteBox").value.length;$("pasteMsg").textContent=n?Math.round(n/1024)+" KB ready":""});
+$("pasteGo").onclick=async()=>{
+  const t=$("pasteBox").value.trim();if(!t){$("pasteMsg").textContent="Nothing pasted yet.";return}
+  $("pasteGo").disabled=true;
+  const r=await handleFiles([new File([t],"pasted.json",{type:"application/json"})]);
+  $("pasteGo").disabled=false;if(r.ok){$("pasteBox").value="";$("pasteMsg").textContent=""}
+};
 const drop=$("drop"),fileIn=$("file");
 drop.onclick=()=>fileIn.click();
 fileIn.onchange=()=>{if(fileIn.files.length)handleFiles([...fileIn.files]);fileIn.value=""};
@@ -1435,24 +1446,12 @@ $("dlWhoop").onclick=async()=>{
 
 // ---------- Sync to Claude: hand stored days + recent band minutes to the Claude page ----------
 function recentMinutes(n){const out={};const ds=[...new Set(Object.keys(S.minutes||{}).concat(Object.keys(BAND.buckets)))].sort().slice(-n);ds.forEach(d=>{const r=mergeRows(S.minutes[d],BAND.buckets[d]);if(r.length)out[d]=r});return out}
-$("syncClaude").onclick=()=>{
+$("syncClaude").onclick=async()=>{
   const msg=t=>{$("dataMsg").textContent=t};
-  if(S.demo){msg("Nothing to sync yet; this is demo data.");return}
+  if(S.demo){msg("Nothing to copy yet; this is demo data.");return}
   const payload={type:"recovery-lab-export",version:1,exported:new Date().toISOString(),days:S.days,minutes:recentMinutes(4)};
-  const w=window.open(ARTIFACT_URL+"#data","_blank");
-  if(!w){msg("The browser blocked the new tab. Allow pop-ups for this page and try again.");return}
-  msg("Opening your Claude page…");
-  let sent=false,done=false,n=0;
-  const onMsg=e=>{
-    const d=e.data;if(!d||typeof d!=="object")return;
-    let mine=false;try{mine=e.source&&e.source.top===w}catch(_){}
-    if(!mine)return;
-    if(d.type==="recovery-lab-ready"&&!sent){sent=true;msg("Connected. Sending "+Object.keys(payload.days).length+" days…");try{e.source.postMessage(payload,e.origin==="null"?"*":e.origin)}catch(err){msg("Couldn't send: "+err)}}
-    else if(d.type==="recovery-lab-ack"){done=true;window.removeEventListener("message",onMsg);msg(d.ok?(d.store==="db"?"Synced to Claude: "+d.days+" days. Open Recovery Lab in the Claude app to see them.":"The Claude page saved it only in this browser, not to your account. Tell Claude so it can fix the page."):"The Claude page couldn't save: "+(d.error||"unknown error"))}
-  };
-  window.addEventListener("message",onMsg);
-  const ping=(win,depth)=>{try{win.postMessage({type:"recovery-lab-ping"},"*")}catch(_){}if(depth<3){let len=0;try{len=win.length}catch(_){}for(let i=0;i<len;i++){try{ping(win[i],depth+1)}catch(_){}}}};
-  const t=setInterval(()=>{n++;if(done||n>80){clearInterval(t);if(!done){window.removeEventListener("message",onMsg);msg(sent?"Sent, but the Claude page didn't confirm. Check it, then try again.":"Couldn't reach the Claude page from here. Use Download backup, then upload that file on the Claude page's Data tab.")}return}if(!sent)ping(w,0)},1000);
+  try{await navigator.clipboard.writeText(JSON.stringify(payload));msg("Copied "+Object.keys(payload.days).length+" days. Now open Recovery Lab in Claude, go to Data, paste into the box and press Import.")}
+  catch(e){msg("Couldn't copy here. Use Download backup and upload that file on the Claude page instead.")}
 };
 
 // ---------- hook for Claude's scheduled syncs: one compact day at a time ----------
