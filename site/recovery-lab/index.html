@@ -920,7 +920,7 @@ function spark(values,color){
 }
 function ring(pct,color,big,unit,label,zoneTxt){
   const r=52,c=2*Math.PI*r,p=clamp(pct||0,0,1);
-  return `<div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(c*p).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 60 60)"/></svg><div class="v"><b>${big}</b><span>${unit}</span></div><div class="lbl">${label}</div><div class="zone">${zoneTxt||"&nbsp;"}</div></div>`;
+  return `<div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="10"/>${p>0?`<circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(c*p).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 60 60)"/>`:""}</svg><div class="v"><b>${big}</b><span>${unit}</span></div><div class="lbl">${label}</div><div class="zone">${zoneTxt||"&nbsp;"}</div></div>`;
 }
 
 // ---------- render: today ----------
