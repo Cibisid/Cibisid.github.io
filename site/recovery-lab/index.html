@@ -141,6 +141,11 @@ table.t th{color:var(--text-muted);font-weight:500}
     <div class="card">
       <div class="rings" id="rings"></div>
     </div>
+    <div class="card hide" id="briefCard">
+      <h2>Note from Claude</h2>
+      <p class="sub" id="briefMeta"></p>
+      <p id="briefText" style="margin:0;white-space:pre-wrap;color:var(--text-secondary)"></p>
+    </div>
     <div class="grid2">
       <div class="card">
         <h2>Strain coach</h2>
@@ -330,7 +335,8 @@ table.t th{color:var(--text-muted);font-weight:500}
       <p class="sub" id="storedSub"></p>
       <div class="row" style="margin-bottom:8px">
         <button class="btn" id="dlData">Download backup</button>
-        <button class="btn" id="dlWhoop">Export for NOOP (WHOOP CSV .zip)</button>
+        <button class="btn primary" id="syncClaude">Sync to Claude</button>
+        <button class="btn" id="dlWhoop">Export WHOOP-format CSV (.zip)</button>
         <button class="btn" id="copyData">Copy all data as JSON</button>
         <button class="btn danger" id="clearAll">Delete all data</button>
         <span class="small muted" id="dataMsg"></span>
@@ -370,7 +376,22 @@ const STANDALONE=(()=>{try{return window.top===window}catch(e){return false}})()
 const DEFAULT_SETTINGS={age:24,maxHr:null,sleepBase:7.75,wakeTime:"07:00",goal:STANDALONE?"":"Build muscle and definition; lifting Monday to Friday, weekends off"};
 const S={days:{},settings:Object.assign({},DEFAULT_SETTINGS),demo:false,store:"local",db:null,sel:null,range:30,comp:[],compMap:{},view:"today"};
 const $=id=>document.getElementById(id);
+const APP_VERSION=6, ARTIFACT_URL="https://claude.ai/artifact/Gu79bL78dSqooGp3dyPy6w", RECORDER_URL="https://cibisid.github.io/recovery-lab/";
 const LS_DAYS="rl_days_v1", LS_SET="rl_settings_v1", LS_MIN="rl_minutes_v1";
+S.dbDays={};S.dbHist={};S.histDays={};S.status=null;S.storeReady=false;
+async function getCap(name){
+  if(STANDALONE&&!window.claude)return null;
+  for(let i=0;i<30&&!(window.claude&&window.claude.use);i++)await new Promise(r=>setTimeout(r,100));
+  try{return window.claude&&window.claude.use?await window.claude.use(name):null}catch(e){return null}
+}
+async function dbTry(fn){
+  let last;
+  for(let i=0;i<4;i++){
+    try{return await fn()}catch(e){last=e;const c=e&&e.code;if(c==="quota_exceeded"||c==="invalid_argument"||c==="revoked"||c==="not_granted")throw e;await new Promise(r=>setTimeout(r,600*(i+1)+Math.random()*400))}
+  }
+  throw last;
+}
+const noUpd=o=>JSON.stringify(o,(k,v)=>k==="updated"?undefined:v);
 S.minutes={};
 
 // ---------- utils ----------
@@ -596,21 +617,29 @@ async function initStore(){
   let local=lsGet(LS_DAYS)||{};
   const ls=lsGet(LS_SET); if(ls)Object.assign(S.settings,ls);
   S.days=local; S.minutes=lsGet(LS_MIN)||{}; applyData();
-  let db=null;
-  try{ if(window.claude&&window.claude.use) db=await window.claude.use("db") }catch(e){db=null}
-  if(!db){S.store="local";applyData();return}
+  const db=await getCap("db");
+  if(!db){S.store="local";S.storeReady=true;applyData();return}
   const localMin=S.minutes;
   S.db=db; S.store="db";
   try{const s=await db.doc("config/settings").get(); if(s.exists)Object.assign(S.settings,s.data())}catch(e){}
   let timer=setTimeout(()=>{$("storePill").textContent="Can't reach saved data yet"},10000);
+  let gotDays=false,gotHist=false;
+  const merge=()=>{S.days=Object.assign({},S.histDays,S.dbDays);if(gotDays&&gotHist)S.storeReady=true;applyData()};
   db.collection("days").onSnapshot(snap=>{
-    if(!snap.metadata.fromCache)clearTimeout(timer);
+    if(!snap.metadata.fromCache){clearTimeout(timer);gotDays=true}
     const m={}; snap.docs.forEach(doc=>{const v=doc.data();if(v)m[doc.id]=JSON.parse(JSON.stringify(v))});
-    // migrate anything saved locally before db was available
-    const pending=Object.keys(local).filter(k=>!m[k]);
-    if(pending.length&&!snap.metadata.fromCache){const toPush={};pending.forEach(k=>toPush[k]=local[k]);local={};lsSet(LS_DAYS,{});writeDays(toPush)}
-    S.days=m; applyData();
-  },err=>{clearTimeout(timer);S.store="local";S.db=null;S.days=lsGet(LS_DAYS)||{};applyData()});
+    S.dbDays=m;
+    // move anything saved in this browser before the database was available
+    const pending=Object.keys(local).filter(k=>!m[k]&&!S.histDays[k]);
+    if(pending.length&&gotDays&&gotHist){const toPush={};pending.forEach(k=>toPush[k]=local[k]);local={};lsSet(LS_DAYS,{});writeDays(toPush).catch(()=>{})}
+    merge();
+  },err=>{clearTimeout(timer);S.store="local";S.db=null;S.days=lsGet(LS_DAYS)||{};S.storeReady=true;applyData()});
+  db.collection("hist").onSnapshot(snap=>{
+    if(!snap.metadata.fromCache)gotHist=true;
+    const H={},D={};snap.docs.forEach(doc=>{const v=doc.data();if(v&&v.days){const c=JSON.parse(JSON.stringify(v.days));H[doc.id]=c;Object.assign(D,c)}});
+    S.dbHist=H;S.histDays=D;merge();
+  },()=>{gotHist=true});
+  db.doc("status/latest").onSnapshot(snap=>{S.status=snap.exists?JSON.parse(JSON.stringify(snap.data())):null;render()},()=>{});
   const cutoff=addDays(ymd(new Date()),-75);
   db.collection("minutes").where("date",">=",cutoff).onSnapshot(snap=>{
     const m={};snap.docs.forEach(doc=>{const v=doc.data();if(v&&v.rows)m[doc.id]=v.rows.map(r=>r.slice())});
@@ -626,15 +655,30 @@ async function writeDays(map,progress){
   const keys=Object.keys(map);
   if(S.db){
     let done=0;
-    const queue=keys.slice();
-    async function worker(){while(queue.length){const k=queue.shift();try{await S.db.collection("days").doc(k).set(map[k])}catch(e){try{await new Promise(r=>setTimeout(r,400+Math.random()*400));await S.db.collection("days").doc(k).set(map[k])}catch(e2){if(e2&&e2.code==="quota_exceeded")throw e2}}done++;if(progress)progress(done,keys.length)}}
-    await Promise.all([worker(),worker(),worker(),worker()]);
+    if(keys.length>20){
+      // bulk history: one document per month
+      const byM={};keys.forEach(k=>{(byM[k.slice(0,7)]=byM[k.slice(0,7)]||{})[k]=map[k]});
+      for(const m of Object.keys(byM).sort()){
+        const old=S.dbHist[m]||{};const cur=Object.assign({},old,byM[m]);
+        if(noUpd(cur)!==noUpd(old)){await dbTry(()=>S.db.collection("hist").doc(m).set({month:m,days:cur}));S.dbHist[m]=cur}
+        for(const k of Object.keys(byM[m])){if(S.dbDays[k])await dbTry(()=>S.db.collection("days").doc(k).delete())}
+        done+=Object.keys(byM[m]).length;if(progress)progress(done,keys.length);
+      }
+    }else{
+      for(const k of keys){await dbTry(()=>S.db.collection("days").doc(k).set(map[k]));done++;if(progress)progress(done,keys.length)}
+    }
   }else{
     keys.forEach(k=>S.days[k]=map[k]); lsSet(LS_DAYS,S.days); applyData();
   }
 }
 async function deleteDay(k){
-  if(S.db){try{await S.db.collection("days").doc(k).delete()}catch(e){}}
+  if(S.db){
+    try{
+      if(S.dbDays[k])await dbTry(()=>S.db.collection("days").doc(k).delete());
+      const m=k.slice(0,7);
+      if(S.dbHist[m]&&S.dbHist[m][k]){const cur=Object.assign({},S.dbHist[m]);delete cur[k];await dbTry(()=>Object.keys(cur).length?S.db.collection("hist").doc(m).set({month:m,days:cur}):S.db.collection("hist").doc(m).delete())}
+    }catch(e){}
+  }
   else{delete S.days[k];lsSet(LS_DAYS,S.days);applyData()}
 }
 async function saveSettings(){
@@ -877,7 +921,10 @@ function ring(pct,color,big,unit,label,zoneTxt){
 
 // ---------- render: today ----------
 function selDates(){return S.comp.map(c=>c.date)}
+function whenText(iso){const t=new Date(iso);if(isNaN(t))return "";const same=ymd(t)===ymd(new Date());return (same?"today":t.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}))+" at "+t.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}
 function renderToday(){
+  const st=S.status;$("briefCard").classList.toggle("hide",!(st&&st.brief));
+  if(st&&st.brief){$("briefText").textContent=String(st.brief);$("briefMeta").textContent=st.at?"Updated "+whenText(st.at):""}
   const ds=selDates();
   if(!ds.length){$("dayLabel").innerHTML="No data yet";$("rings").innerHTML="";return}
   if(!S.sel||!S.compMap[S.sel])S.sel=ds[ds.length-1];
@@ -1180,15 +1227,28 @@ function deriveBand(){
 }
 function renderBand(){
   const sup=bleSupport();
-  $("bandSupport").textContent=sup.ok?"Bluetooth is available. Wear your band, then tap Connect band and pick your WHOOP.":sup.why;
-  $("bandConnect").disabled=!sup.ok;$("bandAll").disabled=!sup.ok;
-  if(BAND.statusText)$("bandStatus").textContent=BAND.statusText;
+  if(!STANDALONE){
+    $("bandSupport").textContent="Your band is recorded by the Recovery Lab tab on your laptop. Claude copies new data here every morning and evening.";
+    ["bandConnect","bandAll","bandStop"].forEach(id=>$(id).classList.add("hide"));
+    $("bandStatus").textContent=S.status&&S.status.at?"Last update from Claude: "+whenText(S.status.at)+".":"No update from Claude yet.";
+  }else{
+    $("bandSupport").textContent=sup.ok?"Bluetooth is available. Wear your band, then tap Connect band and pick your WHOOP.":sup.why;
+    $("bandConnect").disabled=!sup.ok;$("bandAll").disabled=!sup.ok;
+    if(BAND.statusText)$("bandStatus").textContent=BAND.statusText;
+  }
   liveUi();
   const today=ymd(new Date());
   const rows=mergeRows(S.minutes[today],BAND.buckets[today]);
   const cov=rows.filter(r=>r[1]!=null).length;
   const days=Object.keys(S.minutes||{}).length;
   $("bandCoverage").textContent=hm(cov)+" of heart rate recorded today"+(days?" · "+days+" day"+(days>1?"s":"")+" stored":"")+(BAND.lastFlush?" · last saved "+BAND.lastFlush.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}):"");
+  const dayDoc=(S.src||{})[today];
+  if(!cov&&!S.demo&&dayDoc&&dayDoc.hr15){
+    const v=String(dayDoc.hr15).split(",").map(x=>x===""?null:+x);const lb=v.map((_,i)=>clock(i*15));
+    $("bandCoverage").textContent=hm(dayDoc.bandCoverageMin||v.filter(x=>x!=null).length*15)+" of heart rate recorded today";
+    lineChart($("cLiveHr"),lb,[{name:"Heart rate",values:v,color:"var(--s2)"}],{h:160,pad:0.05,labelStep:24,tips:v.map((x,i)=>lb[i]+"\n"+(x!=null?x+" bpm":"no data"))});
+    return;
+  }
   if(!cov){empty($("cLiveHr"),"Nothing recorded yet today.");return}
   const by5=new Array(288).fill(null).map(()=>[0,0]);
   rows.forEach(r=>{if(r[1]!=null){const b=by5[Math.floor(r[0]/5)];b[0]+=r[1];b[1]++}});
@@ -1221,14 +1281,17 @@ async function handleFiles(files){
     else importCSV(text,f.name,target,log);
   }
   const n=Object.keys(target).length;
-  if(!n&&BAND.forceFlush){BAND.forceFlush=false;$("importLog").textContent=log.join("\n")+"\nSaving band minutes…";await flushBand();$("importLog").textContent=log.join("\n")+"\nSaved. Open Today to see your scores.";return}
-  if(!n){$("importLog").textContent=log.join("\n")+"\nNothing to save.";return}
-  $("importLog").textContent=log.join("\n")+"\nSaving "+n+" days…";
+  const say=t=>{$("importLog").textContent=log.join("\n")+"\n"+t};
   try{
-    await writeDays(target,(d,t)=>{$("importLog").textContent=log.join("\n")+"\nSaving "+d+" / "+t+" days…"});
-    $("importLog").textContent=log.join("\n")+"\nSaved "+n+" days. Open Today to see your scores.";
-    if(BAND.forceFlush){BAND.forceFlush=false;await flushBand()}
-  }catch(e){$("importLog").textContent=log.join("\n")+"\nStopped: the page's storage is full ("+(e.message||e.code)+"). Delete older days and try again."}
+    if(!n&&!BAND.forceFlush){say("Nothing to save.");return {ok:true,n:0}}
+    if(n){say("Saving "+n+" days…");await writeDays(target,(d,t)=>say("Saving "+d+" / "+t+" days…"))}
+    if(BAND.forceFlush){BAND.forceFlush=false;say("Saving band minutes…");await flushBand()}
+    say("Saved"+(n?" "+n+" days":"")+". Open Today to see your scores.");
+    return {ok:true,n};
+  }catch(e){
+    const why=e&&e.code==="quota_exceeded"?"the page's storage is full. Delete older days and try again.":"couldn't save ("+((e&&(e.code||e.message))||"error")+"). Try again in a minute.";
+    say("Stopped: "+why);return {ok:false,error:why};
+  }
 }
 const drop=$("drop"),fileIn=$("file");
 drop.onclick=()=>fileIn.click();
@@ -1250,7 +1313,10 @@ $("clearAll").onclick=async()=>{
   if(!clearArm){clearArm=true;$("clearAll").textContent="Tap again to delete everything";setTimeout(()=>{clearArm=false;$("clearAll").textContent="Delete all data"},4000);return}
   clearArm=false;$("clearAll").textContent="Deleting…";
   const ks=Object.keys(S.days);
-  if(S.db){for(const k of ks){try{await S.db.collection("days").doc(k).delete()}catch(e){}}}
+  if(S.db){
+    for(const k of Object.keys(S.dbDays)){try{await dbTry(()=>S.db.collection("days").doc(k).delete())}catch(e){}}
+    for(const m of Object.keys(S.dbHist)){try{await dbTry(()=>S.db.collection("hist").doc(m).delete())}catch(e){}}
+  }
   else{S.days={};lsSet(LS_DAYS,{});applyData()}
   $("clearAll").textContent="Delete all data";$("dataMsg").textContent="Deleted "+ks.length+" days.";
 };
@@ -1306,15 +1372,21 @@ async function ask(q){
 }
 $("askForm").onsubmit=e=>{e.preventDefault();const v=$("askIn").value;$("askIn").value="";ask(v)};
 $("chips").onclick=e=>{const b=e.target.closest("button");if(b)ask(b.textContent)};
-(async()=>{try{if(window.claude&&window.claude.use)sample=await window.claude.use("sample")}catch(e){}if(!sample){$("coachNote").textContent="Open this page on claude.ai to use the coach."}})();
+(async()=>{sample=await getCap("sample");if(!sample){$("coachNote").textContent="The coach lives on the Claude version of this page. Open Recovery Lab from your artifacts in the Claude app."}})();
 
 // ---------- cross-tab: receive WHOOP history from app.whoop.com, follow other tabs' saves ----------
+const PEERS=["https://app.whoop.com","https://cibisid.github.io"];
+let importing=false;
 window.addEventListener("message",async e=>{
-  if(e.origin!=="https://app.whoop.com")return;
-  const d=e.data;if(!d||d.type!=="recovery-lab-export"||typeof d.days!=="object")return;
-  location.hash="data";
-  try{await handleFiles([new File([JSON.stringify(d)],"whoop-history.json",{type:"application/json"})]);if(e.source)e.source.postMessage({type:"recovery-lab-ack",ok:true,days:Object.keys(S.days).length},e.origin)}
-  catch(err){if(e.source)e.source.postMessage({type:"recovery-lab-ack",ok:false,error:String(err)},e.origin)}
+  if(!PEERS.includes(e.origin))return;
+  const d=e.data;if(!d||typeof d!=="object")return;
+  const reply=m=>{try{if(e.source)e.source.postMessage(m,e.origin)}catch(_){}};
+  if(d.type==="recovery-lab-ping"){if(S.storeReady&&!importing)reply({type:"recovery-lab-ready",store:S.store,version:APP_VERSION});return}
+  if(d.type!=="recovery-lab-export"||typeof d.days!=="object"||importing)return;
+  importing=true;location.hash="data";
+  try{const r=await handleFiles([new File([JSON.stringify(d)],"sync.json",{type:"application/json"})]);reply({type:"recovery-lab-ack",ok:r.ok,error:r.error,days:Object.keys(S.days).length,store:S.store})}
+  catch(err){reply({type:"recovery-lab-ack",ok:false,error:String(err)})}
+  finally{importing=false}
 });
 window.addEventListener("storage",e=>{
   if(S.store!=="local")return;
@@ -1361,8 +1433,64 @@ $("dlWhoop").onclick=async()=>{
   }catch(e){$("dataMsg").textContent="Export failed: "+(e.message||e)}
 };
 
+// ---------- Sync to Claude: hand stored days + recent band minutes to the Claude page ----------
+function recentMinutes(n){const out={};const ds=[...new Set(Object.keys(S.minutes||{}).concat(Object.keys(BAND.buckets)))].sort().slice(-n);ds.forEach(d=>{const r=mergeRows(S.minutes[d],BAND.buckets[d]);if(r.length)out[d]=r});return out}
+$("syncClaude").onclick=()=>{
+  const msg=t=>{$("dataMsg").textContent=t};
+  if(S.demo){msg("Nothing to sync yet; this is demo data.");return}
+  const payload={type:"recovery-lab-export",version:1,exported:new Date().toISOString(),days:S.days,minutes:recentMinutes(4)};
+  const w=window.open(ARTIFACT_URL+"#data","_blank");
+  if(!w){msg("The browser blocked the new tab. Allow pop-ups for this page and try again.");return}
+  msg("Opening your Claude page…");
+  let sent=false,done=false,n=0;
+  const onMsg=e=>{
+    const d=e.data;if(!d||typeof d!=="object")return;
+    let mine=false;try{mine=e.source&&e.source.top===w}catch(_){}
+    if(!mine)return;
+    if(d.type==="recovery-lab-ready"&&!sent){sent=true;msg("Connected. Sending "+Object.keys(payload.days).length+" days…");try{e.source.postMessage(payload,e.origin==="null"?"*":e.origin)}catch(err){msg("Couldn't send: "+err)}}
+    else if(d.type==="recovery-lab-ack"){done=true;window.removeEventListener("message",onMsg);msg(d.ok?(d.store==="db"?"Synced to Claude: "+d.days+" days. Open Recovery Lab in the Claude app to see them.":"The Claude page saved it only in this browser, not to your account. Tell Claude so it can fix the page."):"The Claude page couldn't save: "+(d.error||"unknown error"))}
+  };
+  window.addEventListener("message",onMsg);
+  const ping=(win,depth)=>{try{win.postMessage({type:"recovery-lab-ping"},"*")}catch(_){}if(depth<3){let len=0;try{len=win.length}catch(_){}for(let i=0;i<len;i++){try{ping(win[i],depth+1)}catch(_){}}}};
+  const t=setInterval(()=>{n++;if(done||n>80){clearInterval(t);if(!done){window.removeEventListener("message",onMsg);msg(sent?"Sent, but the Claude page didn't confirm. Check it, then try again.":"Couldn't reach the Claude page from here. Use Download backup, then upload that file on the Claude page's Data tab.")}return}if(!sent)ping(w,0)},1000);
+};
+
+// ---------- hook for Claude's scheduled syncs: one compact day at a time ----------
+window.RL={
+  version:APP_VERSION,
+  day(off){
+    const date=addDays(ymd(new Date()),-(off||0));const c=S.compMap[date],d=(S.src||{})[date];
+    if(S.demo||!c||!d||!/band/.test(d.source||""))return JSON.stringify({date,none:true});
+    const q=new Array(96).fill(0).map(()=>[0,0]);
+    mergeRows(S.minutes[date],BAND.buckets[date]).forEach(r=>{if(r[1]!=null){const b=q[Math.floor(r[0]/15)];b[0]+=r[1];b[1]++}});
+    const o={date,source:"band",recovery:c.recovery,hrv:c.hrv,rhr:c.rhr,strain:c.strain,sleepPerf:c.sleepPerf,asleepMin:c.asleep!=null?Math.round(c.asleep):null,inBedMin:c.inBed,awakeMin:c.awake,needMin:c.asleep!=null?Math.round(c.need):null,onset:d.onset,wake:d.wake,bandCoverageMin:d.bandCoverageMin,hr15:q.map(b=>b[1]?Math.round(b[0]/b[1]):"").join(","),updated:new Date().toISOString()};
+    Object.keys(o).forEach(k=>(o[k]===null||o[k]===undefined)&&delete o[k]);
+    return JSON.stringify(o);
+  },
+  brief(){
+    const today=ymd(new Date());const i=S.comp.findIndex(c=>c.date===today);const c=i>=0?S.comp[i]:null;
+    const b=S.comp.filter(x=>x.date<today).slice(-30);const av=k=>{const a=b.map(x=>x[k]).filter(v=>v!=null);return a.length?Math.round(mean(a)*10)/10:null};
+    const z=c?zone(c.recovery):null;const need=(S.sleepBaseUsed||7.75)*60+Math.max(0,((c&&c.strain)||0)-10)*4.8+0.5*((c&&c.debt)||0);const wt=minsOfDay(S.settings.wakeTime)||420;
+    const mins=mergeRows(S.minutes[today],{});const last=mins.length?mins[mins.length-1][0]:null;
+    return JSON.stringify({today,demo:S.demo,zone:z?ZONE_NAME[z]:null,strainTarget:z==="good"?"14-18":z==="warn"?"10-14":z==="crit"?"under 10":null,calibrating:c?!!c.calibrating:null,hrvAvg30:av("hrv"),rhrAvg30:av("rhr"),sleepAvg30h:av("asleep")!=null?Math.round(av("asleep")/6)/10:null,needTonight:hm(need),bedBy:clock(wt-need-15),debt:c?hm(c.debt):null,lastBandMinute:last!=null?clock(last):null,bandDays:Object.values(S.src||{}).filter(x=>/band/.test(x.source||"")).length});
+  }
+};
+
+// ---------- reconnect after a reload, when the browser allows it and no other tab is recording ----------
+setTimeout(async()=>{
+  try{
+    if(!STANDALONE||BAND.status==="on"||!navigator.bluetooth||!navigator.bluetooth.getDevices)return;
+    const now=new Date(),rows=(lsGet(LS_MIN)||{})[ymd(now)]||[];const last=rows.length?rows[rows.length-1][0]:-99;
+    if(now.getHours()*60+now.getMinutes()-last<=4)return;
+    const ds=await navigator.bluetooth.getDevices();const d=ds.find(x=>/whoop/i.test(x.name||""));
+    if(!d)return;
+    BAND.dev=d;BAND.manualStop=false;d.addEventListener("gattserverdisconnected",onDisconnect);
+    gattConnect().catch(()=>onDisconnect());
+  }catch(e){}
+},5000);
+
 // ---------- boot ----------
-if(!STANDALONE){$("dlData").classList.add("hide");$("dlWhoop").classList.add("hide")}
+if(!STANDALONE){["dlData","dlWhoop","syncClaude"].forEach(id=>$(id).classList.add("hide"))}
 route();
 initStore();
 })();
