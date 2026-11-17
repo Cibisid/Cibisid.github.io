@@ -380,7 +380,7 @@ const STANDALONE=(()=>{try{return window.top===window}catch(e){return false}})()
 const DEFAULT_SETTINGS={age:24,maxHr:null,sleepBase:7.75,wakeTime:"07:00",goal:STANDALONE?"":"Build muscle and definition; lifting Monday to Friday, weekends off"};
 const S={days:{},settings:Object.assign({},DEFAULT_SETTINGS),demo:false,store:"local",db:null,sel:null,range:30,comp:[],compMap:{},view:"today"};
 const $=id=>document.getElementById(id);
-const APP_VERSION=6, ARTIFACT_URL="https://claude.ai/artifact/Gu79bL78dSqooGp3dyPy6w", RECORDER_URL="https://cibisid.github.io/recovery-lab/";
+const APP_VERSION=7, ARTIFACT_URL="https://claude.ai/artifact/Gu79bL78dSqooGp3dyPy6w", RECORDER_URL="https://cibisid.github.io/recovery-lab/";
 const LS_DAYS="rl_days_v1", LS_SET="rl_settings_v1", LS_MIN="rl_minutes_v1";
 S.dbDays={};S.dbHist={};S.histDays={};S.status=null;S.storeReady=false;
 async function getCap(name){
@@ -457,7 +457,7 @@ function strainMap(t,c){if(!c)return strainFromTrimp(t);return clamp(c.form==="l
 function calibrate(src){
   const ks=Object.keys(src).sort();
   const wd=ks.filter(k=>/whoop/.test(src[k].source||"")&&num(src[k].recovery)!=null);
-  if(wd.length<60)return null;
+  if(wd.length<60){const pin=lsGet("rl_cal_pin");return pin&&pin.rec&&pin.rec.w?pin:null}
   const sig=wd.length+":"+wd[wd.length-1]+":"+maxHr.length;
   const cached=lsGet("rl_cal_v1");if(cached&&cached.sig===sig)return cached;
   // recovery
