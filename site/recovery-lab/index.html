@@ -330,6 +330,7 @@ table.t th{color:var(--text-muted);font-weight:500}
       <p class="sub" id="storedSub"></p>
       <div class="row" style="margin-bottom:8px">
         <button class="btn" id="dlData">Download backup</button>
+        <button class="btn" id="dlWhoop">Export for NOOP (WHOOP CSV .zip)</button>
         <button class="btn" id="copyData">Copy all data as JSON</button>
         <button class="btn danger" id="clearAll">Delete all data</button>
         <span class="small muted" id="dataMsg"></span>
@@ -1321,8 +1322,47 @@ window.addEventListener("storage",e=>{
   else if(e.key===LS_MIN&&BAND.status!=="on"){S.minutes=lsGet(LS_MIN)||{};applyData()}
 });
 
+// ---------- WHOOP-format CSV export (for NOOP and other apps that read WHOOP's export) ----------
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+function whoopTime(iso){if(!iso)return "";const d=new Date(iso);if(isNaN(d))return "";return ymd(d)+" "+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())}
+function whoopTz(iso){const d=iso?new Date(iso):new Date();const o=-d.getTimezoneOffset();const s=o>=0?"+":"-";const a=Math.abs(o);return "UTC"+s+pad(Math.floor(a/60))+":"+pad(a%60)}
+function csvCell(v){if(v===null||v===undefined||(typeof v==="number"&&!isFinite(v)))return "";const t=String(v);return /[",\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t}
+function r1(v){return v==null||!isFinite(v)?"":Math.round(v*10)/10}
+function buildWhoopCsvs(){
+  const comp=S.comp.filter(c=>!c.missing);
+  const days=S.src||{};
+  const cyc=[["Cycle start time","Cycle end time","Cycle timezone","Recovery score %","Resting heart rate (bpm)","Heart rate variability (ms)","Skin temp (celsius)","Blood oxygen %","Day Strain","Energy burned (cal)","Max HR (bpm)","Average HR (bpm)","Sleep onset","Wake onset","Sleep performance %","Respiratory rate (rpm)","Asleep duration (min)","In bed duration (min)","Light sleep duration (min)","Deep (SWS) duration (min)","REM duration (min)","Awake duration (min)","Sleep efficiency %","Sleep consistency %","Sleep need (min)","Sleep debt (min)"]];
+  const slp=[["Cycle start time","Sleep onset","Wake onset","Cycle timezone","Nap","Sleep performance %","Respiratory rate (rpm)","Asleep duration (min)","In bed duration (min)","Light sleep duration (min)","Deep (SWS) duration (min)","REM duration (min)","Awake duration (min)","Sleep efficiency %","Sleep consistency %","Sleep need (min)","Sleep debt (min)"]];
+  const wk=[["Cycle start time","Workout start time","Workout end time","Cycle timezone","Activity name","Activity Strain","Energy burned (cal)","Max HR (bpm)","Average HR (bpm)","HR Zone 1 %","HR Zone 2 %","HR Zone 3 %","HR Zone 4 %","HR Zone 5 %"]];
+  const starts=comp.map(c=>{const d=days[c.date]||{};return d.onset&&!/^\d{1,2}:\d{2}$/.test(d.onset)?d.onset:new Date(parseYmd(c.date).getTime()-60*60000).toISOString()});
+  comp.forEach((c,i)=>{
+    const d=days[c.date]||{};const st=starts[i];const end=i+1<comp.length&&comp[i+1].date===addDays(c.date,1)?starts[i+1]:"";
+    const tz=whoopTz(st);const onset=d.onset&&!/^\d{1,2}:\d{2}$/.test(d.onset)?d.onset:"";const wake=d.wake&&!/^\d{1,2}:\d{2}$/.test(d.wake)?d.wake:"";
+    const eff=c.asleep!=null&&c.inBed?r1(c.asleep/c.inBed*100):"";
+    const kcal=c.kcal!=null?c.kcal:c.activeKcal;
+    cyc.push([whoopTime(st),whoopTime(end),tz,c.recovery,c.rhr!=null?Math.round(c.rhr):"",r1(c.hrv),c.skinTemp!=null?c.skinTemp:"",c.spo2,c.strain,kcal!=null?Math.round(kcal):"","","",whoopTime(onset),whoopTime(wake),c.sleepPerf,r1(c.resp),c.asleep!=null?Math.round(c.asleep):"",c.inBed!=null?Math.round(c.inBed):"",c.light,c.deep,c.rem,c.awake,eff,"",c.need!=null?Math.round(c.need):"",c.debt!=null?Math.round(c.debt):""]);
+    if(onset&&wake)slp.push([whoopTime(st),whoopTime(onset),whoopTime(wake),tz,"false",c.sleepPerf,r1(c.resp),c.asleep!=null?Math.round(c.asleep):"",c.inBed!=null?Math.round(c.inBed):"",c.light,c.deep,c.rem,c.awake,eff,"",c.need!=null?Math.round(c.need):"",c.debt!=null?Math.round(c.debt):""]);
+    (c.workouts||[]).forEach(w=>{if(!w.start)return;const ws=new Date(w.start);if(isNaN(ws))return;const we=new Date(ws.getTime()+(num(w.durMin)||0)*60000);
+      wk.push([whoopTime(st),whoopTime(ws.toISOString()),whoopTime(we.toISOString()),tz,w.type||"Activity",w.strain!=null?w.strain:r1(w.calcStrain),w.kcal!=null?Math.round(w.kcal):"",w.maxHr||"",w.avgHr||"","","","","",""])});
+  });
+  const toCsv=rows=>rows.map(r=>r.map(csvCell).join(",")).join("\n")+"\n";
+  return {cycles:toCsv(cyc),sleeps:toCsv(slp),workouts:toCsv(wk),n:cyc.length-1,ns:slp.length-1,nw:wk.length-1};
+}
+$("dlWhoop").onclick=async()=>{
+  if(S.demo){$("dataMsg").textContent="Nothing to export yet; this is demo data.";return}
+  $("dataMsg").textContent="Building export…";
+  try{
+    if(!window.JSZip)await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js");
+    const c=buildWhoopCsvs();const folder="my_whoop_data_"+ymd(new Date()).replace(/-/g,"_");
+    const z=new JSZip();z.file(folder+"/physiological_cycles.csv",c.cycles);z.file(folder+"/sleeps.csv",c.sleeps);z.file(folder+"/workouts.csv",c.workouts);
+    const blob=await z.generateAsync({type:"blob"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=folder+".zip";document.body.appendChild(a);a.click();a.remove();
+    $("dataMsg").textContent="Exported "+c.n+" days, "+c.ns+" sleeps, "+c.nw+" workouts in WHOOP's format.";
+  }catch(e){$("dataMsg").textContent="Export failed: "+(e.message||e)}
+};
+
 // ---------- boot ----------
-if(!STANDALONE)$("dlData").classList.add("hide");
+if(!STANDALONE){$("dlData").classList.add("hide");$("dlWhoop").classList.add("hide")}
 route();
 initStore();
 })();
